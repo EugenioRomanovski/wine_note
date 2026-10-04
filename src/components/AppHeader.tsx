@@ -12,7 +12,7 @@ export function AppHeader() {
         <div className="logo">
           <span className="logo-accent">wine</span>note
         </div>
-        <div className="logo-sub">Мой винный дневник</div>
+        <div className="logo-sub">мой винный дневник</div>
       </div>
       <Link to="/profile" className="profile-btn" aria-label="Профиль">
         {profile?.avatarPhotoId ? (

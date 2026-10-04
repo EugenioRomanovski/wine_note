@@ -123,7 +123,7 @@ export default function EntryFormScreen() {
           className="input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Например: оранжевое от Саши или марка с бутылки"
+          placeholder="Марка с бутылки и название из меню"
         />
       </div>
 
