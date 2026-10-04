@@ -135,9 +135,7 @@ export default function EntryFormScreen() {
           {IMPRESSIONS.map((imp) => (
             <button
               key={imp}
-              className={`imp-option imp-opt-${imp} ${
-                impression === imp ? 'selected' : impression == null ? 'tinted' : ''
-              }`}
+              className={`imp-option imp-opt-${imp} ${impression === imp ? 'selected' : ''}`}
               onClick={() => setImpression(imp)}
             >
               <ImpressionIcon impression={imp} size={18} />

@@ -566,24 +566,16 @@ textarea.input {
   cursor: pointer;
 }
 
-.imp-option.tinted,
-.imp-option.selected {
-  background: var(--card);
-}
-
-.imp-opt-not_mine.tinted,
 .imp-opt-not_mine.selected {
   border-color: var(--text);
   color: var(--text);
 }
 
-.imp-opt-good.tinted,
 .imp-opt-good.selected {
   border-color: var(--success);
   color: var(--success);
 }
 
-.imp-opt-want_more.tinted,
 .imp-opt-want_more.selected {
   border-color: var(--imp-want-more);
   color: var(--imp-want-more);
