@@ -1,0 +1,35 @@
+:root {
+  /* светлая тема (по умолчанию) */
+  --bg: #faf6f0;
+  --bg-secondary: #f0ecea;
+  --card: #fffffd;
+  --text: #2b2325;
+  --text-secondary: #7a7072;
+  --text-muted: #a39799;
+  --accent: #9b0047;
+  --accent-deep: #5c162e;
+  --on-accent: #ffffff;
+  --success: #2f5c3e;
+  --danger: #ff3f43;
+  --border: #e5ded8;
+  --shadow: 0 8px 24px rgba(43, 35, 37, 0.08);
+
+  --font-display: 'Arsenica Display', 'Georgia', serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+}
+
+[data-theme='dark'] {
+  --bg: #1a1517;
+  --bg-secondary: #1e1a1c;
+  --card: #2b2325;
+  --text: #faf6f0;
+  --text-secondary: #a89a9c;
+  --text-muted: #7a7072;
+  --accent: #b4a766;
+  --accent-deep: #8f8452;
+  --on-accent: #1a1517;
+  --success: #5a9b72;
+  --danger: #ff3f43;
+  --border: #3a3234;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
