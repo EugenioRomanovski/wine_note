@@ -9,17 +9,22 @@ function sameDay(a: Date, b: Date): boolean {
   )
 }
 
-/** "14 мая" or "Вчера, 14 мая" */
+/** "14 мая" → "14 мая 26" (две последние цифры года) */
+function withYear(d: Date): string {
+  return `${dayFmt.format(d)} ${String(d.getFullYear()).slice(-2)}`
+}
+
+/** "14 мая 26" or "Вчера, 14 мая 26" */
 export function formatDay(iso: string): string {
   const d = new Date(iso)
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
-  if (sameDay(d, yesterday)) return `Вчера, ${dayFmt.format(d)}`
-  return dayFmt.format(d)
+  if (sameDay(d, yesterday)) return `Вчера, ${withYear(d)}`
+  return withYear(d)
 }
 
-/** "14 мая в 20:15" */
+/** "14 мая 26 в 20:15" */
 export function formatDayTime(iso: string): string {
   const d = new Date(iso)
-  return `${dayFmt.format(d)} в ${timeFmt.format(d)}`
+  return `${withYear(d)} в ${timeFmt.format(d)}`
 }
