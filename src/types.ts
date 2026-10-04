@@ -9,6 +9,8 @@ export interface WineNote {
   place?: string
   comment?: string
   color?: WineColor
+  grapes: string[]
+  regions: string[]
   tags: string[]
   photoIds: number[]
   tastedAt: string

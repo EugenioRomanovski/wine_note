@@ -7,16 +7,11 @@ import { AppHeader } from '../components/AppHeader'
 import { BottomNav } from '../components/BottomNav'
 import { NoteCardFull, NoteCardShort } from '../components/NoteCards'
 import { GridViewIcon, ListViewIcon } from '../components/icons'
+import { ImpressionIcon } from '../components/ImpressionChip'
+import { IMPRESSION_LABELS } from '../lib/labels'
 
 type Filter = 'all' | Impression
 type View = 'full' | 'short'
-
-const FILTERS: { value: Filter; label: string }[] = [
-  { value: 'all', label: 'Все' },
-  { value: 'want_more', label: 'Хочу ещё' },
-  { value: 'good', label: 'Хорошо' },
-  { value: 'not_mine', label: 'Не моё' },
-]
 
 function loadView(): View {
   return localStorage.getItem('feedView') === 'short' ? 'short' : 'full'
@@ -60,13 +55,18 @@ export default function FeedScreen() {
     <div className="screen with-nav">
       <AppHeader />
       <div className="filter-row">
-        {FILTERS.map((f) => (
+        <button className={`chip ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
+          Все
+        </button>
+        {(['want_more', 'good', 'not_mine'] as Impression[]).map((imp) => (
           <button
-            key={f.value}
-            className={`chip ${filter === f.value ? 'active' : ''}`}
-            onClick={() => setFilter(f.value)}
+            key={imp}
+            className={`chip chip-icon ${filter === imp ? 'active' : ''}`}
+            onClick={() => setFilter(imp)}
+            aria-label={IMPRESSION_LABELS[imp]}
+            title={IMPRESSION_LABELS[imp]}
           >
-            {f.label}
+            <ImpressionIcon impression={imp} size={17} />
           </button>
         ))}
         <span className="spacer" />

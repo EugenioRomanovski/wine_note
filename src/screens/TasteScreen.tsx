@@ -16,6 +16,14 @@ function tagFrequency(notes: WineNote[]): [string, number][] {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])
 }
 
+function topValue(notes: WineNote[], pick: (n: WineNote) => string[] | undefined): string | null {
+  const counts = new Map<string, number>()
+  for (const note of notes) {
+    for (const v of pick(note) ?? []) counts.set(v, (counts.get(v) ?? 0) + 1)
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
+}
+
 /** Note closest to "one year ago", considering notes at least 300 days old. */
 function memoryNote(notes: WineNote[]): WineNote | null {
   const now = Date.now()
@@ -37,6 +45,8 @@ export default function TasteScreen() {
 
   const wantMore = notes.filter((n) => n.impression === 'want_more')
   const freq = tagFrequency(notes)
+  const topGrape = topValue(notes, (n) => n.grapes)
+  const topRegion = topValue(notes, (n) => n.regions)
   const memory = memoryNote(notes)
 
   return (
@@ -82,6 +92,19 @@ export default function TasteScreen() {
             ))}
           </div>
         </section>
+      )}
+
+      {(topGrape || topRegion) && (
+        <div className="stat-row">
+          <div className="stat-card">
+            <div className="stat-label">Мой сорт</div>
+            <div className="stat-value">{topGrape ?? '—'}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Мой регион</div>
+            <div className="stat-value">{topRegion ?? '—'}</div>
+          </div>
+        </div>
       )}
 
       {memory && (

@@ -61,6 +61,25 @@ export function GlassIcon(props: IconProps) {
   )
 }
 
+export function ThumbUpIcon({ size = 24, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={(size * 15) / 16}
+      viewBox="0 0 16 15"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M1.00065 5.78889H3.96214V13.1062H1.00065V5.78889Z" />
+      <path d="M3.96214 5.78889H5.44288L7.3467 3.75632L8.03982 1.75831C8.30894 0.982549 9.29126 0.746615 9.88334 1.31553L10.2704 1.68749C10.5562 1.96209 10.6766 2.36674 10.5873 2.75288L9.88511 5.78889H13.4973C14.4628 5.78889 15.1772 6.68735 14.9597 7.62807L13.8944 12.2341C13.7764 12.7446 13.3216 13.1062 12.7976 13.1062H3.96214V5.78889Z" />
+    </svg>
+  )
+}
+
 export function PinIcon(props: IconProps) {
   return (
     <Svg {...props}>

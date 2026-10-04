@@ -16,3 +16,7 @@ export const WINE_COLORS: { value: WineColor; label: string }[] = [
 ]
 
 export const SUGGESTED_TAGS = ['игристое', 'крепленое', 'сухое', 'полу-сухое', 'сладкое']
+
+export const SUGGESTED_GRAPES = ['Темпранильо', 'Гарнача', 'Каберне Совиньон', 'Вионье']
+
+export const SUGGESTED_REGIONS = ['Бургундия', 'Шабли', 'Чили', 'Каталония', 'Новая зеландия']

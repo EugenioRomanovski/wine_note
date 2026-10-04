@@ -3,10 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import type { Impression, WineColor, WineNote } from '../types'
-import { IMPRESSION_LABELS, IMPRESSIONS, SUGGESTED_TAGS, WINE_COLORS } from '../lib/labels'
+import { IMPRESSION_LABELS, IMPRESSIONS, SUGGESTED_GRAPES, SUGGESTED_REGIONS, SUGGESTED_TAGS, WINE_COLORS } from '../lib/labels'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { CameraIcon, ChevronDownIcon, ChevronUpIcon, PencilIcon, PlusIcon, XIcon } from '../components/icons'
+
+function toLocalInputValue(iso: string): string {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
 
 export default function EntryFormScreen() {
   const { id } = useParams()
@@ -27,8 +33,13 @@ export default function EntryFormScreen() {
   const [place, setPlace] = useState('')
   const [comment, setComment] = useState('')
   const [color, setColor] = useState<WineColor | null>(null)
+  const [grapes, setGrapes] = useState<string[]>([])
+  const [grapeInput, setGrapeInput] = useState('')
+  const [regions, setRegions] = useState<string[]>([])
+  const [regionInput, setRegionInput] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [tastedAt, setTastedAt] = useState('')
   const [saving, setSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -45,7 +56,10 @@ export default function EntryFormScreen() {
       setPlace(existing.place ?? '')
       setComment(existing.comment ?? '')
       setColor(existing.color ?? null)
+      setGrapes(existing.grapes ?? [])
+      setRegions(existing.regions ?? [])
       setTags(existing.tags)
+      setTastedAt(toLocalInputValue(existing.tastedAt))
       setInitialized(true)
     }
   }, [existing, isEdit, initialized])
@@ -65,6 +79,18 @@ export default function EntryFormScreen() {
     setTagInput('')
   }
 
+  const addGrape = (raw: string) => {
+    const v = raw.trim().replace(/,+$/, '')
+    if (v && !grapes.includes(v)) setGrapes([...grapes, v])
+    setGrapeInput('')
+  }
+
+  const addRegion = (raw: string) => {
+    const v = raw.trim().replace(/,+$/, '')
+    if (v && !regions.includes(v)) setRegions([...regions, v])
+    setRegionInput('')
+  }
+
   const canSave = name.trim().length > 0 && impression != null && !saving
 
   const save = async () => {
@@ -79,8 +105,11 @@ export default function EntryFormScreen() {
           place: place.trim() || undefined,
           comment: comment.trim() || undefined,
           color: color ?? undefined,
+          grapes,
+          regions,
           tags,
           photoIds: photoId != null ? [photoId] : [],
+          ...(tastedAt ? { tastedAt: new Date(tastedAt).toISOString() } : {}),
           updatedAt: now,
         })
         navigate(`/note/${editId}`, { replace: true })
@@ -91,6 +120,8 @@ export default function EntryFormScreen() {
           place: place.trim() || undefined,
           comment: comment.trim() || undefined,
           color: color ?? undefined,
+          grapes,
+          regions,
           tags,
           photoIds: photoId != null ? [photoId] : [],
           tastedAt: now,
@@ -144,6 +175,18 @@ export default function EntryFormScreen() {
           ))}
         </div>
       </div>
+
+      {isEdit && (
+        <div className="form-section">
+          <div className="form-label">Дата дегустации</div>
+          <input
+            className="input"
+            type="datetime-local"
+            value={tastedAt}
+            onChange={(e) => setTastedAt(e.target.value)}
+          />
+        </div>
+      )}
 
       <div className="form-section">
         <div className="details-box">
@@ -217,6 +260,8 @@ export default function EntryFormScreen() {
                 />
               </div>
 
+              <div className="about-wine-title">О вине</div>
+
               <div className="form-section">
                 <div className="form-label">
                   <span className="num">6</span> Цвет вина
@@ -236,7 +281,73 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">7</span> О вине
+                  <span className="num">7</span> Сорт винограда
+                </div>
+                <input
+                  className="input"
+                  value={grapeInput}
+                  onChange={(e) => setGrapeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault()
+                      addGrape(grapeInput)
+                    }
+                  }}
+                  onBlur={() => grapeInput.trim() && addGrape(grapeInput)}
+                  placeholder="введите сорт"
+                />
+                <div className="tag-cloud">
+                  {grapes.map((g) => (
+                    <button key={g} className="tag-chip tag-user" onClick={() => setGrapes(grapes.filter((x) => x !== g))}>
+                      {g}
+                      <XIcon size={13} />
+                    </button>
+                  ))}
+                  {SUGGESTED_GRAPES.filter((g) => !grapes.includes(g)).map((g) => (
+                    <button key={g} className="tag-chip tag-suggested" onClick={() => addGrape(g)}>
+                      {g}
+                      <PlusIcon size={13} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-section">
+                <div className="form-label">
+                  <span className="num">8</span> Регион
+                </div>
+                <input
+                  className="input"
+                  value={regionInput}
+                  onChange={(e) => setRegionInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault()
+                      addRegion(regionInput)
+                    }
+                  }}
+                  onBlur={() => regionInput.trim() && addRegion(regionInput)}
+                  placeholder="введите регион или страну"
+                />
+                <div className="tag-cloud">
+                  {regions.map((r) => (
+                    <button key={r} className="tag-chip tag-user" onClick={() => setRegions(regions.filter((x) => x !== r))}>
+                      {r}
+                      <XIcon size={13} />
+                    </button>
+                  ))}
+                  {SUGGESTED_REGIONS.filter((r) => !regions.includes(r)).map((r) => (
+                    <button key={r} className="tag-chip tag-suggested" onClick={() => addRegion(r)}>
+                      {r}
+                      <PlusIcon size={13} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-section">
+                <div className="form-label">
+                  <span className="num">9</span> Оттенки вкуса
                 </div>
                 <input
                   className="input"
@@ -249,7 +360,7 @@ export default function EntryFormScreen() {
                     }
                   }}
                   onBlur={() => tagInput.trim() && addTag(tagInput)}
-                  placeholder="введите сорт винограда, регион или оттенки вкуса"
+                  placeholder="введите оттенки вкуса"
                 />
                 <div className="tag-cloud">
                   {tags.map((tag) => (

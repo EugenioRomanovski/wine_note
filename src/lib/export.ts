@@ -15,7 +15,7 @@ function csvEscape(value: string): string {
 
 export async function exportCsv() {
   const notes = await db.notes.orderBy('tastedAt').reverse().toArray()
-  const header = ['Название', 'Впечатление', 'Место', 'Комментарий', 'Цвет', 'Теги', 'Дата']
+  const header = ['Название', 'Впечатление', 'Место', 'Комментарий', 'Цвет', 'Сорт', 'Регион', 'Оттенки вкуса', 'Дата']
   const lines = notes.map((n) =>
     [
       csvEscape(n.name),
@@ -23,6 +23,8 @@ export async function exportCsv() {
       csvEscape(n.place ?? ''),
       csvEscape(n.comment ?? ''),
       csvEscape(n.color ?? ''),
+      csvEscape((n.grapes ?? []).join(', ')),
+      csvEscape((n.regions ?? []).join(', ')),
       csvEscape(n.tags.join(', ')),
       csvEscape(n.tastedAt),
     ].join(';'),

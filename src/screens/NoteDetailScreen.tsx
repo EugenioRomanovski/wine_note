@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import { formatDayTime } from '../lib/dates'
+import { WINE_COLORS } from '../lib/labels'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { BottomNav } from '../components/BottomNav'
@@ -16,6 +17,13 @@ export default function NoteDetailScreen() {
   if (!note) return null
 
   const photoId = note.photoIds[0] ?? null
+  const colorLabel = WINE_COLORS.find((c) => c.value === note.color)?.label
+  const chips = [
+    ...(note.grapes ?? []),
+    ...(colorLabel ? [colorLabel] : []),
+    ...note.tags,
+    ...(note.regions ?? []),
+  ]
 
   const remove = async () => {
     if (!window.confirm('Удалить эту запись без возможности восстановления?')) return
@@ -84,11 +92,11 @@ export default function NoteDetailScreen() {
             <div className="comment-card-text">«{note.comment}»</div>
           </div>
         )}
-        {note.tags.length > 0 && (
+        {chips.length > 0 && (
           <div className="detail-tags">
-            {note.tags.map((tag) => (
-              <span key={tag} className="tag-chip tag-static">
-                {tag}
+            {chips.map((chip) => (
+              <span key={chip} className="tag-chip tag-static">
+                {chip}
               </span>
             ))}
           </div>

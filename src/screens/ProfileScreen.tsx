@@ -16,20 +16,13 @@ import {
 
 export default function ProfileScreen() {
   const profile = useLiveQuery(() => db.profile.toCollection().first(), [])
-  const notes = useLiveQuery(() => db.notes.toArray(), [])
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [backupOpen, setBackupOpen] = useState(false)
   const avatarRef = useRef<HTMLInputElement>(null)
   const restoreRef = useRef<HTMLInputElement>(null)
 
-  if (!profile || !notes) return null
-
-  const tagCounts = new Map<string, number>()
-  for (const note of notes) {
-    for (const tag of note.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)
-  }
-  const topTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) => tag)
+  if (!profile) return null
 
   const setTheme = async (dark: boolean) => {
     await db.profile.update(profile.id!, { theme: dark ? 'dark' : 'light' })
@@ -88,17 +81,6 @@ export default function ProfileScreen() {
           }}
         />
         <div className="profile-name">{profile.name || 'Без имени'}</div>
-      </div>
-
-      <div className="stat-row">
-        <div className="stat-card">
-          <div className="stat-label">Твой сорт</div>
-          <div className="stat-value">{topTags[0] ?? '—'}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Твой регион</div>
-          <div className="stat-value">{topTags[1] ?? '—'}</div>
-        </div>
       </div>
 
       <div className="profile-section-title">Настройки</div>
