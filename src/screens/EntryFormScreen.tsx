@@ -6,7 +6,7 @@ import type { Impression, WineColor, WineNote } from '../types'
 import { IMPRESSION_LABELS, IMPRESSIONS, SUGGESTED_GRAPES, SUGGESTED_REGIONS, SUGGESTED_TAGS, WINE_COLORS } from '../lib/labels'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
-import { CameraIcon, ChevronDownIcon, ChevronUpIcon, PencilIcon, PlusIcon, XIcon } from '../components/icons'
+import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PencilIcon, PlusIcon, XIcon } from '../components/icons'
 
 function toLocalInputValue(iso: string): string {
   const d = new Date(iso)
@@ -42,6 +42,7 @@ export default function EntryFormScreen() {
   const [tastedAt, setTastedAt] = useState('')
   const [saving, setSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isEdit) {
@@ -65,6 +66,7 @@ export default function EntryFormScreen() {
   }, [existing, isEdit, initialized])
 
   const pickPhoto = () => fileRef.current?.click()
+  const pickFromGallery = () => galleryRef.current?.click()
 
   const onPhotoChosen = async (file: File | undefined) => {
     if (!file) return
@@ -234,6 +236,20 @@ export default function EntryFormScreen() {
                     e.target.value = ''
                   }}
                 />
+                <input
+                  ref={galleryRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    void onPhotoChosen(e.target.files?.[0])
+                    e.target.value = ''
+                  }}
+                />
+                <button className="photo-gallery-btn" onClick={pickFromGallery}>
+                  <ImageIcon size={18} />
+                  Выбрать из галереи
+                </button>
               </div>
 
               <div className="form-section">

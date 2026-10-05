@@ -612,6 +612,7 @@ textarea.input {
 [data-theme='dark'] .details-chevron,
 [data-theme='dark'] .details-box .input,
 [data-theme='dark'] .details-box .photo-picker,
+[data-theme='dark'] .details-box .photo-gallery-btn,
 [data-theme='dark'] .details-box .color-chip,
 [data-theme='dark'] .details-box .tag-suggested {
   background: var(--bg-secondary);
@@ -696,6 +697,22 @@ textarea.input {
   height: 190px;
   object-fit: cover;
   display: block;
+}
+
+.photo-gallery-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
 }
 
 .photo-edit-badge {

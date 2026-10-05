@@ -98,6 +98,17 @@ export function CameraIcon(props: IconProps) {
   )
 }
 
+export function ImageIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      <circle cx="9" cy="10" r="1.8" />
+      <path d="m4.5 18 4.8-4.8a1.5 1.5 0 0 1 2.1 0l8.1 6.3" />
+      <path d="m14.5 15.5 1.9-1.9a1.5 1.5 0 0 1 2.1 0l2 2" />
+    </Svg>
+  )
+}
+
 export function BookIcon(props: IconProps) {
   return (
     <Svg {...props}>
