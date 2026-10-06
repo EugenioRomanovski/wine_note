@@ -6,7 +6,7 @@ import type { Impression, WineColor, WineNote } from '../types'
 import { IMPRESSION_LABELS, IMPRESSIONS, SUGGESTED_GRAPES, SUGGESTED_REGIONS, SUGGESTED_TAGS, WINE_COLORS } from '../lib/labels'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
-import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PencilIcon, PlusIcon, XIcon } from '../components/icons'
+import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PlusIcon, ReloadIcon, XIcon } from '../components/icons'
 
 function toLocalInputValue(iso: string): string {
   const d = new Date(iso)
@@ -213,7 +213,7 @@ export default function EntryFormScreen() {
                     <>
                       <PhotoImg photoId={photoId} className="photo-preview" alt="Фото вина" />
                       <span className="photo-edit-badge">
-                        <PencilIcon size={20} />
+                        <ReloadIcon size={20} />
                       </span>
                     </>
                   ) : (

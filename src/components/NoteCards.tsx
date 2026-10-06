@@ -15,10 +15,7 @@ export function NoteCardFull({ note }: { note: WineNote }) {
     <Link to={`/note/${note.id}`} className="note-card">
       {photoId != null && <PhotoImg photoId={photoId} className="note-card-photo" alt={note.name} />}
       <div className="note-card-body">
-        <div className="row-between">
-          <ImpressionChip impression={note.impression} />
-          <span className="note-date">{formatDay(note.tastedAt)}</span>
-        </div>
+        <ImpressionChip impression={note.impression} />
         <div className="note-title">{note.name}</div>
         {note.place && (
           <div className="note-place">
@@ -27,6 +24,7 @@ export function NoteCardFull({ note }: { note: WineNote }) {
           </div>
         )}
         {note.comment && <div className="note-comment">«{note.comment}»</div>}
+        <span className="note-date">{formatDay(note.tastedAt)}</span>
       </div>
     </Link>
   )
