@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import type { Impression, WineColor, WineNote } from '../types'
-import { IMPRESSION_LABELS, IMPRESSIONS, SUGGESTED_GRAPES, SUGGESTED_REGIONS, SUGGESTED_TAGS, WINE_COLORS } from '../lib/labels'
+import { IMPRESSION_LABELS, IMPRESSIONS, WINE_COLORS } from '../lib/labels'
+import { buildSuggestions } from '../lib/suggestions'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PlusIcon, ReloadIcon, XIcon } from '../components/icons'
@@ -24,6 +25,7 @@ export default function EntryFormScreen() {
     () => (editId != null ? db.notes.get(editId) : Promise.resolve<WineNote | undefined>(undefined)),
     [editId],
   )
+  const suggestions = useLiveQuery(async () => buildSuggestions(await db.notes.toArray()), [])
 
   const [initialized, setInitialized] = useState(false)
   const [name, setName] = useState('')
@@ -319,7 +321,7 @@ export default function EntryFormScreen() {
                       <XIcon size={13} />
                     </button>
                   ))}
-                  {SUGGESTED_GRAPES.filter((g) => !grapes.includes(g)).map((g) => (
+                  {(suggestions?.grapes ?? []).filter((g) => !grapes.includes(g)).map((g) => (
                     <button key={g} className="tag-chip tag-suggested" onClick={() => addGrape(g)}>
                       {g}
                       <PlusIcon size={13} />
@@ -352,7 +354,7 @@ export default function EntryFormScreen() {
                       <XIcon size={13} />
                     </button>
                   ))}
-                  {SUGGESTED_REGIONS.filter((r) => !regions.includes(r)).map((r) => (
+                  {(suggestions?.regions ?? []).filter((r) => !regions.includes(r)).map((r) => (
                     <button key={r} className="tag-chip tag-suggested" onClick={() => addRegion(r)}>
                       {r}
                       <PlusIcon size={13} />
@@ -385,7 +387,7 @@ export default function EntryFormScreen() {
                       <XIcon size={13} />
                     </button>
                   ))}
-                  {SUGGESTED_TAGS.filter((t) => !tags.includes(t)).map((tag) => (
+                  {(suggestions?.tags ?? []).filter((t) => !tags.includes(t)).map((tag) => (
                     <button key={tag} className="tag-chip tag-suggested" onClick={() => addTag(tag)}>
                       {tag}
                       <PlusIcon size={13} />
