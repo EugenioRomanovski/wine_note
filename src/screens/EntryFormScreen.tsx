@@ -210,23 +210,45 @@ export default function EntryFormScreen() {
                 <div className="form-label">
                   <span className="num">3</span> Снимок этикетки, меню или бокала
                 </div>
-                <button className="photo-picker" onClick={pickPhoto}>
-                  {photoId != null ? (
-                    <>
-                      <PhotoImg photoId={photoId} className="photo-preview" alt="Фото вина" />
-                      <span className="photo-edit-badge">
-                        <ReloadIcon size={20} />
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="photo-picker-icon">
-                        <CameraIcon size={24} />
-                      </span>
-                      Нажмите, чтобы сделать фото
-                    </>
-                  )}
-                </button>
+                <div className="photo-card">
+                  <button
+                    className={`photo-slot${photoId != null ? ' has-photo' : ''}`}
+                    onClick={pickPhoto}
+                    aria-label={photoId != null ? 'Переснять фото' : 'Сделать фото'}
+                  >
+                    {photoId != null ? (
+                      <>
+                        <PhotoImg photoId={photoId} className="photo-slot-img" alt="Фото вина" />
+                        <span className="photo-edit-badge">
+                          <ReloadIcon size={18} />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="photo-picker-icon">
+                          <CameraIcon size={22} />
+                        </span>
+                        <span className="photo-slot-hint">
+                          Нажмите, чтобы
+                          <br />
+                          сделать фото
+                        </span>
+                      </>
+                    )}
+                  </button>
+                  <div className="photo-card-info" aria-hidden="true">
+                    <span className="skeleton skeleton-badge" />
+                    <span className="skeleton-group">
+                      <span className="skeleton skeleton-line" />
+                      <span className="skeleton skeleton-line" />
+                      <span className="skeleton skeleton-line" />
+                    </span>
+                    <span className="skeleton-group">
+                      <span className="skeleton skeleton-line-sm" style={{ width: '75%' }} />
+                      <span className="skeleton skeleton-line-sm" style={{ width: '68%' }} />
+                    </span>
+                  </div>
+                </div>
                 <input
                   ref={fileRef}
                   type="file"

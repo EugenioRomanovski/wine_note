@@ -623,7 +623,8 @@ textarea.input {
 
 [data-theme='dark'] .details-chevron,
 [data-theme='dark'] .details-box .input,
-[data-theme='dark'] .details-box .photo-picker,
+[data-theme='dark'] .details-box .photo-card,
+[data-theme='dark'] .details-box .photo-slot,
 [data-theme='dark'] .details-box .photo-gallery-btn,
 [data-theme='dark'] .details-box .color-chip,
 [data-theme='dark'] .details-box .tag-suggested {
@@ -674,41 +675,101 @@ textarea.input {
   margin-bottom: 4px;
 }
 
-.photo-picker {
-  width: 100%;
-  border: 2px dashed var(--border);
+/* Пункт 3: карточка с вертикальным слотом под фото — как в ленте */
+.photo-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
   border-radius: 20px;
   background: var(--card);
-  min-height: 170px;
+  box-shadow: 0 4px 6px rgba(43, 37, 39, 0.02);
+}
+
+.photo-slot {
+  position: relative;
+  flex-shrink: 0;
+  width: 148px;
+  height: 201px;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  background: var(--card);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: var(--text-muted);
-  font-size: 14px;
-  cursor: pointer;
-  overflow: hidden;
+  gap: 10px;
   padding: 0;
-  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.photo-slot.has-photo {
+  border: none;
+}
+
+.photo-slot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-slot-hint {
+  font-size: 13px;
+  line-height: normal;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .photo-picker-icon {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--accent-deep) 7%, transparent);
   color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.photo-preview {
+.photo-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.skeleton-group {
   width: 100%;
-  height: 190px;
-  object-fit: cover;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton {
   display: block;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+.skeleton-badge {
+  width: 89px;
+  height: 25px;
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--accent-deep) 7%, transparent);
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 16px;
+}
+
+.skeleton-line-sm {
+  height: 10px;
 }
 
 .photo-gallery-btn {
@@ -729,11 +790,10 @@ textarea.input {
 
 .photo-edit-badge {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 52px;
-  height: 52px;
+  right: 8px;
+  bottom: 8px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--card);
   color: var(--accent);
