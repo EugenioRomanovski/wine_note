@@ -45,13 +45,19 @@ describe('buildSuggestions', () => {
     })
   })
 
-  it('uses user values once notes exist, falling back per field', () => {
+  it('pads user values with defaults up to 4, skipping duplicates', () => {
     const s = buildSuggestions([
-      note('2026-01-02', { grapes: ['Мерло'], tags: ['сухое'] }),
+      note('2026-01-02', { grapes: ['Мерло'], tags: ['Сухое'] }),
       note('2026-01-01', { grapes: ['Мерло', 'Пино Нуар'] }),
     ])
-    expect(s.grapes).toEqual(['Мерло', 'Пино Нуар'])
-    expect(s.tags).toEqual(['сухое'])
-    expect(s.regions).toEqual(SUGGESTED_REGIONS)
+    expect(s.grapes).toEqual(['Мерло', 'Пино Нуар', ...SUGGESTED_GRAPES.slice(0, 2)])
+    expect(s.tags).toEqual(['Сухое', 'игристое', 'крепленое', 'полу-сухое'])
+    expect(s.regions).toEqual(SUGGESTED_REGIONS.slice(0, 4))
+  })
+
+  it('uses only user values when there are at least 4', () => {
+    const s = buildSuggestions([note('2026-01-01', { grapes: ['a', 'b', 'c', 'd', 'e'] })])
+    expect(s.grapes).toHaveLength(4)
+    expect(s.grapes.every((g) => 'abcde'.includes(g))).toBe(true)
   })
 })

@@ -35,18 +35,24 @@ export interface Suggestions {
   tags: string[]
 }
 
+/** Значения пользователя, дополненные стандартными до `limit` (без повторов). */
+function padWithDefaults(values: string[], defaults: string[], limit = MAX_SUGGESTIONS): string[] {
+  const seen = new Set(values.map((v) => v.toLocaleLowerCase('ru')))
+  const extra = defaults.filter((d) => !seen.has(d.toLocaleLowerCase('ru')))
+  return [...values, ...extra].slice(0, limit)
+}
+
 /**
- * Для первой заметки — стандартные подсказки. Дальше — самые частые значения пользователя;
- * если в каком-то пункте пользователь ещё ничего не вводил, там остаются стандартные.
+ * Для первой заметки — стандартные подсказки. Дальше — самые частые значения пользователя,
+ * а если их меньше `MAX_SUGGESTIONS`, список дополняется стандартными.
  */
 export function buildSuggestions(notes: WineNote[]): Suggestions {
   const defaults = { grapes: SUGGESTED_GRAPES, regions: SUGGESTED_REGIONS, tags: SUGGESTED_TAGS }
   if (notes.length === 0) return defaults
   const ordered = [...notes].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-  const pick = (values: string[], fallback: string[]) => (values.length > 0 ? values : fallback)
   return {
-    grapes: pick(topValues(ordered.map((n) => n.grapes ?? [])), defaults.grapes),
-    regions: pick(topValues(ordered.map((n) => n.regions ?? [])), defaults.regions),
-    tags: pick(topValues(ordered.map((n) => n.tags ?? [])), defaults.tags),
+    grapes: padWithDefaults(topValues(ordered.map((n) => n.grapes ?? [])), defaults.grapes),
+    regions: padWithDefaults(topValues(ordered.map((n) => n.regions ?? [])), defaults.regions),
+    tags: padWithDefaults(topValues(ordered.map((n) => n.tags ?? [])), defaults.tags),
   }
 }
