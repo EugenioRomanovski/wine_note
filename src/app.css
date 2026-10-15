@@ -772,6 +772,31 @@ textarea.input {
   height: 10px;
 }
 
+.photo-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.photo-card-place {
+  font-size: 13px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.photo-card-place span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .photo-gallery-btn {
   width: 100%;
   margin-top: 10px;

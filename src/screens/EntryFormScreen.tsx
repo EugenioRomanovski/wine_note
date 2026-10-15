@@ -7,6 +7,7 @@ import { IMPRESSION_LABELS, IMPRESSIONS, WINE_COLORS } from '../lib/labels'
 import { buildSuggestions } from '../lib/suggestions'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
+import { PhotoCardPreview } from '../components/PhotoCardPreview'
 import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PlusIcon, ReloadIcon, XIcon } from '../components/icons'
 
 function toLocalInputValue(iso: string): string {
@@ -236,18 +237,12 @@ export default function EntryFormScreen() {
                       </>
                     )}
                   </button>
-                  <div className="photo-card-info" aria-hidden="true">
-                    <span className="skeleton skeleton-badge" />
-                    <span className="skeleton-group">
-                      <span className="skeleton skeleton-line" />
-                      <span className="skeleton skeleton-line" />
-                      <span className="skeleton skeleton-line" />
-                    </span>
-                    <span className="skeleton-group">
-                      <span className="skeleton skeleton-line-sm" style={{ width: '75%' }} />
-                      <span className="skeleton skeleton-line-sm" style={{ width: '68%' }} />
-                    </span>
-                  </div>
+                  <PhotoCardPreview
+                    name={name}
+                    impression={impression}
+                    place={place}
+                    tastedAt={tastedAt ? new Date(tastedAt).toISOString() : new Date().toISOString()}
+                  />
                 </div>
                 <input
                   ref={fileRef}
