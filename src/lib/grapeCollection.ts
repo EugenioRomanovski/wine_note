@@ -40,3 +40,25 @@ export function grapeCollection(notes: WineNote[]): CollectedGrape[] {
   }
   return [...byMain.values()].sort((a, b) => b.tastings - a.tastings || a.ru.localeCompare(b.ru, 'ru'))
 }
+
+/**
+ * Самый частый сорт в заметках, сведённый к основному сорту справочника
+ * («Шираз» и «Сира» — один сорт). Сорта не из справочника считаются по написанию.
+ * При равенстве побеждает тот, что встретился раньше в списке заметок.
+ */
+export function topGrape(notes: WineNote[]): string | null {
+  const counts = new Map<string, number>()
+  for (const note of notes) {
+    const inNote = new Set((note.grapes ?? []).map((g) => resolveMainGrape(g)?.ru ?? g.trim()).filter(Boolean))
+    for (const g of inNote) counts.set(g, (counts.get(g) ?? 0) + 1)
+  }
+  let best: string | null = null
+  let bestCount = 0
+  for (const [g, c] of counts) {
+    if (c > bestCount) {
+      best = g
+      bestCount = c
+    }
+  }
+  return best
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { WineNote } from '../types'
-import { TOTAL_GRAPES, grapeCollection } from './grapeCollection'
+import { TOTAL_GRAPES, grapeCollection, topGrape } from './grapeCollection'
 
 const note = (grapes: string[], impression: WineNote['impression'] = 'good') =>
   ({ grapes, impression, tags: [], regions: [], photoIds: [] }) as unknown as WineNote
@@ -29,5 +29,19 @@ describe('grapeCollection', () => {
     expect(g.ru).toBe('Шардоне')
     expect(g.aliases).toEqual([])
     expect(grapeCollection([note(['шираз'])])[0].aliases).toEqual(['Шираз'])
+  })
+})
+
+describe('topGrape', () => {
+  it('merges synonyms when picking the most frequent grape', () => {
+    expect(topGrape([note(['Мерло']), note(['Мерло']), note(['Шираз']), note(['Сира']), note(['сира'])])).toBe('Сира')
+  })
+
+  it('counts grapes outside the dictionary by their name', () => {
+    expect(topGrape([note(['Мой сорт']), note(['Мой сорт ']), note(['Мерло'])])).toBe('Мой сорт')
+  })
+
+  it('returns null when there are no grapes', () => {
+    expect(topGrape([note([])])).toBeNull()
   })
 })

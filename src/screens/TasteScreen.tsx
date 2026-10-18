@@ -5,7 +5,7 @@ import { db } from '../storage/db'
 import type { WineNote } from '../types'
 import { formatDay } from '../lib/dates'
 import { plural, pluralWines, tastedCounts } from '../lib/stats'
-import { TOTAL_GRAPES, grapeCollection } from '../lib/grapeCollection'
+import { TOTAL_GRAPES, grapeCollection, topGrape } from '../lib/grapeCollection'
 import { GrapeCollectionSheet } from '../components/GrapeCollectionSheet'
 import { BottomNav } from '../components/BottomNav'
 import { ImpressionChip } from '../components/ImpressionChip'
@@ -52,7 +52,7 @@ export default function TasteScreen() {
   const freq = tagFrequency(notes)
   // «Мой сорт» и «Мой регион» — только по понравившимся винам
   const liked = notes.filter((n) => n.impression === 'good' || n.impression === 'want_more')
-  const topGrape = topValue(liked, (n) => n.grapes)
+  const favoriteGrape = topGrape(liked)
   const topRegion = topValue(liked, (n) => n.regions)
   const memory = memoryNote(notes)
   const counts = tastedCounts(notes)
@@ -135,11 +135,11 @@ export default function TasteScreen() {
         </section>
       )}
 
-      {(topGrape || topRegion) && (
+      {(favoriteGrape || topRegion) && (
         <div className="stat-row">
           <div className="stat-card">
             <div className="stat-label">Мой сорт</div>
-            <div className="stat-value">{topGrape ?? '—'}</div>
+            <div className="stat-value">{favoriteGrape ?? '—'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">Мой регион</div>
