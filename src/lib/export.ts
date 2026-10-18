@@ -9,30 +9,6 @@ export function download(filename: string, blob: Blob) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-function csvEscape(value: string): string {
-  return `"${value.replace(/"/g, '""')}"`
-}
-
-export async function exportCsv() {
-  const notes = await db.notes.orderBy('tastedAt').reverse().toArray()
-  const header = ['Название', 'Впечатление', 'Место', 'Комментарий', 'Цвет', 'Сорт', 'Регион', 'Оттенки вкуса', 'Дата']
-  const lines = notes.map((n) =>
-    [
-      csvEscape(n.name),
-      csvEscape(n.impression),
-      csvEscape(n.place ?? ''),
-      csvEscape(n.comment ?? ''),
-      csvEscape(n.color ?? ''),
-      csvEscape((n.grapes ?? []).join(', ')),
-      csvEscape((n.regions ?? []).join(', ')),
-      csvEscape(n.tags.join(', ')),
-      csvEscape(n.tastedAt),
-    ].join(';'),
-  )
-  const csv = '﻿' + [header.join(';'), ...lines].join('\r\n')
-  download('winenote-export.csv', new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-}
-
 interface BackupPhoto {
   id: number
   createdAt: string

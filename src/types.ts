@@ -29,4 +29,8 @@ export interface Profile {
   name: string
   avatarPhotoId?: number
   theme: 'light' | 'dark'
+  /** Вид ленты при открытии приложения (по умолчанию — полный) */
+  feedView?: FeedView
 }
+
+export type FeedView = 'full' | 'short'

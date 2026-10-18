@@ -253,6 +253,11 @@
   cursor: pointer;
 }
 
+.segmented {
+  display: flex;
+  gap: 8px;
+}
+
 .view-toggle.active {
   background: var(--accent);
   border-color: var(--accent);

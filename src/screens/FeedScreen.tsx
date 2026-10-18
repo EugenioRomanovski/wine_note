@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
-import type { Impression } from '../types'
+import type { FeedView, Impression } from '../types'
 import { AppHeader } from '../components/AppHeader'
 import { BottomNav } from '../components/BottomNav'
 import { NoteCardFull, NoteCardShort } from '../components/NoteCards'
@@ -11,23 +11,27 @@ import { ImpressionIcon } from '../components/ImpressionChip'
 import { IMPRESSION_LABELS } from '../lib/labels'
 
 type Filter = 'all' | Impression
-type View = 'full' | 'short'
 
-function loadView(): View {
-  return localStorage.getItem('feedView') === 'short' ? 'short' : 'full'
-}
+/**
+ * Вид, выбранный переключателем в ленте, — живёт до перезапуска приложения.
+ * При запуске лента открывается в виде из настроек профиля.
+ */
+let sessionView: FeedView | null = null
 
 export default function FeedScreen() {
   const notes = useLiveQuery(() => db.notes.orderBy('tastedAt').reverse().toArray(), [])
+  const profile = useLiveQuery(() => db.profile.toCollection().first(), [])
   const [filter, setFilter] = useState<Filter>('all')
-  const [view, setViewState] = useState<View>(loadView)
+  const [override, setOverride] = useState<FeedView | null>(sessionView)
 
-  const setView = (v: View) => {
-    setViewState(v)
-    localStorage.setItem('feedView', v)
+  const setView = (v: FeedView) => {
+    sessionView = v
+    setOverride(v)
   }
 
-  if (!notes) return null
+  // ждём и профиль, чтобы лента не мигала полным видом перед сокращённым
+  if (!notes || !profile) return null
+  const view: FeedView = override ?? profile?.feedView ?? 'full'
 
   if (notes.length === 0) {
     return (

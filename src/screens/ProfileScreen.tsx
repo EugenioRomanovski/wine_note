@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
-import { exportBackup, exportCsv, importBackup } from '../lib/export'
+import { exportBackup, importBackup } from '../lib/export'
+import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
 import {
@@ -9,7 +10,8 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   CloudIcon,
-  DownloadIcon,
+  GridViewIcon,
+  ListViewIcon,
   LockIcon,
   PersonIcon,
 } from '../components/icons'
@@ -27,6 +29,11 @@ export default function ProfileScreen() {
   const setTheme = async (dark: boolean) => {
     await db.profile.update(profile.id!, { theme: dark ? 'dark' : 'light' })
   }
+
+  const setFeedView = async (feedView: FeedView) => {
+    await db.profile.update(profile.id!, { feedView })
+  }
+  const feedView = profile.feedView ?? 'full'
 
   const onAvatarChosen = async (file: File | undefined) => {
     if (!file) return
@@ -95,6 +102,31 @@ export default function ProfileScreen() {
             aria-checked={profile.theme === 'dark'}
           />
         </div>
+        <div className="card-row">
+          Отображение ленты
+          <div className="segmented" role="radiogroup" aria-label="Отображение ленты">
+            <button
+              className={`view-toggle ${feedView === 'full' ? 'active' : ''}`}
+              onClick={() => void setFeedView('full')}
+              role="radio"
+              aria-checked={feedView === 'full'}
+              aria-label="Полный вид"
+              title="Полный вид"
+            >
+              <GridViewIcon size={19} />
+            </button>
+            <button
+              className={`view-toggle ${feedView === 'short' ? 'active' : ''}`}
+              onClick={() => void setFeedView('short')}
+              role="radio"
+              aria-checked={feedView === 'short'}
+              aria-label="Сокращённый вид"
+              title="Сокращённый вид"
+            >
+              <ListViewIcon size={19} />
+            </button>
+          </div>
+        </div>
         <button
           className="card-row"
           onClick={() => {
@@ -128,12 +160,6 @@ export default function ProfileScreen() {
 
       <div className="profile-section-title">Данные</div>
       <div className="card-list">
-        <button className="card-row" onClick={() => void exportCsv()}>
-          Экспорт в CSV
-          <span className="row-icon">
-            <DownloadIcon size={20} />
-          </span>
-        </button>
         <button className="card-row" onClick={() => setBackupOpen(!backupOpen)}>
           Бэкап и восстановление
           <span className="row-icon">
