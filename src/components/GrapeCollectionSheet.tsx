@@ -52,7 +52,7 @@ export function GrapeCollectionSheet({ grapes, onClose }: Props) {
                   </div>
                 </div>
                 <div className="collection-item-count">
-                  {g.tastings} {plural(g.tastings, ['дегустация', 'дегустации', 'дегустаций'])}
+                  {g.tastings} {plural(g.tastings, ['раз', 'раза', 'раз'])}
                 </div>
               </li>
             ))}
