@@ -18,8 +18,10 @@ export default function NoteDetailScreen() {
 
   const photoId = note.photoIds[0] ?? null
   const colorLabel = WINE_COLORS.find((c) => c.value === note.color)?.label
+  const grapes = note.grapes ?? []
   const chips = [
-    ...(note.grapes ?? []),
+    // купаж — все сорта одним чипом: «сорт/сорт/сорт»
+    ...(grapes.length > 0 ? [grapes.join('/')] : []),
     ...(colorLabel ? [colorLabel] : []),
     ...note.tags,
     ...(note.regions ?? []),
