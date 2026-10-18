@@ -60,7 +60,7 @@ export default function TasteScreen() {
 
       {notes.length > 0 && (
         <section className="taste-section">
-          <div className="taste-section-title">Вы попробовали</div>
+          <div className="taste-section-title">Мои дегустации</div>
           <div className="stat-row tasted-row">
             <div className="stat-card">
               <div className="stat-label">В этом месяце</div>
