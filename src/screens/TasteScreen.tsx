@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import type { WineNote } from '../types'
 import { formatDay } from '../lib/dates'
+import { pluralWines, tastedCounts } from '../lib/stats'
 import { BottomNav } from '../components/BottomNav'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
@@ -50,11 +51,32 @@ export default function TasteScreen() {
   const topGrape = topValue(liked, (n) => n.grapes)
   const topRegion = topValue(liked, (n) => n.regions)
   const memory = memoryNote(notes)
+  const counts = tastedCounts(notes)
 
   return (
     <div className="screen with-nav">
       <h1 className="page-title">вкус со временем</h1>
       <div className="page-sub">АНАЛИТИКА ВОСПОМИНАНИЙ</div>
+
+      {notes.length > 0 && (
+        <section className="taste-section">
+          <div className="taste-section-title">Вы попробовали</div>
+          <div className="stat-row tasted-row">
+            <div className="stat-card">
+              <div className="stat-label">В этом месяце</div>
+              <div className="stat-value">
+                {counts.month} {pluralWines(counts.month)}
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">В этом году</div>
+              <div className="stat-value">
+                {counts.year} {pluralWines(counts.year)}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {wantMore.length > 0 && (
         <section className="taste-section">

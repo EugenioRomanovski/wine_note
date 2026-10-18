@@ -1265,6 +1265,10 @@ textarea.input {
   margin-bottom: 30px;
 }
 
+.stat-row.tasted-row {
+  margin: 10px 0 0;
+}
+
 .stat-card {
   flex: 1;
   background: var(--card);
