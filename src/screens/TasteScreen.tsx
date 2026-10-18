@@ -45,8 +45,10 @@ export default function TasteScreen() {
 
   const wantMore = notes.filter((n) => n.impression === 'want_more')
   const freq = tagFrequency(notes)
-  const topGrape = topValue(notes, (n) => n.grapes)
-  const topRegion = topValue(notes, (n) => n.regions)
+  // «Мой сорт» и «Мой регион» — только по понравившимся винам
+  const liked = notes.filter((n) => n.impression === 'good' || n.impression === 'want_more')
+  const topGrape = topValue(liked, (n) => n.grapes)
+  const topRegion = topValue(liked, (n) => n.regions)
   const memory = memoryNote(notes)
 
   return (
