@@ -562,6 +562,62 @@
   border-color: var(--accent);
 }
 
+/* Подсказки под полем ввода (сорт винограда) */
+.autocomplete {
+  position: relative;
+}
+
+.autocomplete-list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.autocomplete-item.active {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.autocomplete-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.autocomplete-orig {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.autocomplete-raw {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
 .input::placeholder {
   color: var(--text-muted);
 }

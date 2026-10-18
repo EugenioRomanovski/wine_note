@@ -18,6 +18,7 @@ npm run dev        # дев-сервер на http://localhost:5173
 npm run typecheck  # проверка типов
 npm test           # тесты
 npm run build      # продакшен-сборка в dist/
+npm run build:grapes  # пересобрать справочник сортов из data/grapes.csv
 ```
 
 ## Структура
@@ -28,6 +29,7 @@ src/
   components/  переиспользуемые компоненты и иконки
   storage/db.ts  схема IndexedDB (Dexie)
   lib/         даты, подписи, экспорт CSV / бэкап JSON
+  data/        справочник сортов винограда (генерируется из data/grapes.csv)
   types.ts     модель данных
 public/        иконки, шрифты, web-манифест
 design/        макеты экранов (png) и выгрузка из Figma (json)

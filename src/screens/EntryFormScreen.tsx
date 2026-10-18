@@ -8,6 +8,7 @@ import { buildSuggestions } from '../lib/suggestions'
 import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { PhotoCardPreview } from '../components/PhotoCardPreview'
+import { GrapeInput } from '../components/GrapeInput'
 import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PlusIcon, ReloadIcon, XIcon } from '../components/icons'
 
 function toLocalInputValue(iso: string): string {
@@ -318,19 +319,7 @@ export default function EntryFormScreen() {
                 <div className="form-label">
                   <span className="num">7</span> Сорт винограда
                 </div>
-                <input
-                  className="input"
-                  value={grapeInput}
-                  onChange={(e) => setGrapeInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ',') {
-                      e.preventDefault()
-                      addGrape(grapeInput)
-                    }
-                  }}
-                  onBlur={() => grapeInput.trim() && addGrape(grapeInput)}
-                  placeholder="введите сорт"
-                />
+                <GrapeInput value={grapeInput} onChange={setGrapeInput} onAdd={addGrape} selected={grapes} />
                 <div className="tag-cloud">
                   {grapes.map((g) => (
                     <button key={g} className="tag-chip tag-user" onClick={() => setGrapes(grapes.filter((x) => x !== g))}>
