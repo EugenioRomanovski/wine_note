@@ -1,13 +1,16 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import type { WineNote } from '../types'
 import { formatDay } from '../lib/dates'
-import { pluralWines, tastedCounts } from '../lib/stats'
+import { plural, pluralWines, tastedCounts } from '../lib/stats'
+import { TOTAL_GRAPES, grapeCollection } from '../lib/grapeCollection'
+import { GrapeCollectionSheet } from '../components/GrapeCollectionSheet'
 import { BottomNav } from '../components/BottomNav'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
-import { GlassIcon, HistoryIcon, PinIcon } from '../components/icons'
+import { ChevronRightIcon, GlassIcon, HistoryIcon, PinIcon } from '../components/icons'
 
 function tagFrequency(notes: WineNote[]): [string, number][] {
   const counts = new Map<string, number>()
@@ -42,6 +45,7 @@ function memoryNote(notes: WineNote[]): WineNote | null {
 
 export default function TasteScreen() {
   const notes = useLiveQuery(() => db.notes.orderBy('tastedAt').reverse().toArray(), [])
+  const [collectionOpen, setCollectionOpen] = useState(false)
   if (!notes) return null
 
   const wantMore = notes.filter((n) => n.impression === 'want_more')
@@ -52,6 +56,7 @@ export default function TasteScreen() {
   const topRegion = topValue(liked, (n) => n.regions)
   const memory = memoryNote(notes)
   const counts = tastedCounts(notes)
+  const collection = grapeCollection(notes)
 
   return (
     <div className="screen with-nav">
@@ -75,6 +80,18 @@ export default function TasteScreen() {
               </div>
             </div>
           </div>
+          <button className="stat-card collection-card" onClick={() => setCollectionOpen(true)}>
+            <div>
+              <div className="stat-label">Моя коллекция сортов</div>
+              <div className="stat-value">
+                {collection.length} <span className="collection-total">из {TOTAL_GRAPES}</span>
+              </div>
+              <div className="collection-sub">
+                {plural(collection.length, ['сорт открыт', 'сорта открыто', 'сортов открыто'])}
+              </div>
+            </div>
+            <ChevronRightIcon size={20} />
+          </button>
         </section>
       )}
 
@@ -155,6 +172,8 @@ export default function TasteScreen() {
           </Link>
         </section>
       )}
+
+      {collectionOpen && <GrapeCollectionSheet grapes={collection} onClose={() => setCollectionOpen(false)} />}
 
       <BottomNav active="taste" />
     </div>

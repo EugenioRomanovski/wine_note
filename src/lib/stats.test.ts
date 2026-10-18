@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { WineNote } from '../types'
-import { pluralWines, tastedCounts } from './stats'
+import { plural, pluralWines, tastedCounts } from './stats'
 
 describe('pluralWines', () => {
   it.each([
@@ -24,5 +24,12 @@ describe('tastedCounts', () => {
       note(new Date(2025, 9, 10)),
     ]
     expect(tastedCounts(notes, now)).toEqual({ month: 2, year: 4 })
+  })
+})
+
+describe('plural', () => {
+  it('picks the right form for grapes', () => {
+    const f: [string, string, string] = ['сорт', 'сорта', 'сортов']
+    expect([1, 2, 5, 11, 21, 423].map((n) => plural(n, f))).toEqual(['сорт', 'сорта', 'сортов', 'сортов', 'сорт', 'сорта'])
   })
 })

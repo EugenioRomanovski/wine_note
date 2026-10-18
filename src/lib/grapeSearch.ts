@@ -6,6 +6,8 @@ export interface Grape {
   /** Оригинальное название, как на этикетке */
   orig: string
   synonym: boolean
+  /** Русское название основного сорта (для основного — совпадает с ru) */
+  main: string
 }
 
 interface Indexed extends Grape {
@@ -99,10 +101,11 @@ const popularity = (ru: string) => {
   return i === -1 ? POPULAR.length : i
 }
 
-const GRAPES: Indexed[] = (rawGrapes as [string, string, number][]).map(([ru, orig, syn]) => ({
+const GRAPES: Indexed[] = (rawGrapes as [string, string, string][]).map(([ru, orig, main]) => ({
   ru,
   orig,
-  synonym: syn === 1,
+  synonym: main !== '',
+  main: main || ru,
   normRu: normalize(ru),
   normOrig: normalize(orig),
   keyRu: phoneticKey(ru),
@@ -147,12 +150,24 @@ export function searchGrapes(input: string, limit = 6): Grape[] {
       a.g.ru.length - b.g.ru.length ||
       a.g.ru.localeCompare(b.g.ru, 'ru'),
   )
-  return found.slice(0, limit).map(({ g }) => ({ ru: g.ru, orig: g.orig, synonym: g.synonym }))
+  return found.slice(0, limit).map(({ g }) => toGrape(g))
 }
 
 /** Точное совпадение с названием из справочника (без учёта регистра, ё и диакритики). */
 export function findExactGrape(input: string): Grape | null {
   const q = normalize(input)
   const g = GRAPES.find((x) => x.normRu === q || x.normOrig === q)
-  return g ? { ru: g.ru, orig: g.orig, synonym: g.synonym } : null
+  return g ? toGrape(g) : null
+}
+
+const toGrape = (g: Indexed): Grape => ({ ru: g.ru, orig: g.orig, synonym: g.synonym, main: g.main })
+
+/** Основные сорта справочника (без синонимов). */
+export const MAIN_GRAPES: Grape[] = GRAPES.filter((g) => !g.synonym).map(toGrape)
+
+/** Основной сорт для названия из заметки: «Шираз» → «Сира». null — сорта нет в справочнике. */
+export function resolveMainGrape(name: string): Grape | null {
+  const g = findExactGrape(name)
+  if (!g) return null
+  return g.synonym ? (MAIN_GRAPES.find((m) => m.ru === g.main) ?? null) : g
 }

@@ -37,13 +37,25 @@ const col = (name) => header.indexOf(name)
 const RU = col('Название (рус.)')
 const ORIG = col('Название (ориг., как на этикетке)')
 const TYPE = col('Тип записи')
-if ([RU, ORIG, TYPE].includes(-1)) throw new Error('Не найдены нужные колонки в data/grapes.csv')
+const MAIN = col('Основной сорт')
+if ([RU, ORIG, TYPE, MAIN].includes(-1)) throw new Error('Не найдены нужные колонки в data/grapes.csv')
 
-// [русское название, оригинальное название, 1 если синоним]
-const grapes = rows
-  .map((r) => [r[RU].trim(), r[ORIG].trim(), r[TYPE].trim() === 'синоним' ? 1 : 0])
-  .filter(([ru]) => ru)
+const entries = rows
+  .map((r) => ({ ru: r[RU].trim(), orig: r[ORIG].trim(), main: r[MAIN].trim(), synonym: r[TYPE].trim() === 'синоним' }))
+  .filter((e) => e.ru)
+
+// Основной сорт указан оригинальным названием — находим его русскую запись
+const mainByOrig = new Map(entries.filter((e) => !e.synonym).map((e) => [e.main, e.ru]))
+const missing = entries.filter((e) => e.synonym && !mainByOrig.has(e.main))
+if (missing.length > 0) {
+  throw new Error('Нет основной записи для синонимов: ' + missing.map((e) => `${e.ru} → ${e.main}`).join(', '))
+}
+
+// [русское название, оригинальное название, русское название основного сорта ('' — это и есть основной)]
+const grapes = entries
+  .map((e) => [e.ru, e.orig, e.synonym ? mainByOrig.get(e.main) : ''])
   .sort((a, b) => a[0].localeCompare(b[0], 'ru'))
 
 writeFileSync('src/data/grapes.json', JSON.stringify(grapes) + '\n')
-console.log(`src/data/grapes.json: ${grapes.length} сортов`)
+const mains = grapes.filter((g) => !g[2]).length
+console.log(`src/data/grapes.json: ${grapes.length} записей, ${mains} основных сортов`)
