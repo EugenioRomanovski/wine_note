@@ -1583,8 +1583,27 @@ textarea.input {
 
 .backup-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 0 20px 18px;
+}
+
+.backup-actions > button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.backup-actions > button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.backup-hint {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
 }
 
 .backup-actions .btn-outline,

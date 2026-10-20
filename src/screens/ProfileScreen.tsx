@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
-import { exportBackup, importBackup } from '../lib/export'
+import { BackupError, exportBackup, importBackup } from '../lib/backup'
+import { plural } from '../lib/stats'
 import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
@@ -21,6 +22,7 @@ export default function ProfileScreen() {
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const [backupOpen, setBackupOpen] = useState(false)
+  const [busy, setBusy] = useState<string | null>(null)
   const avatarRef = useRef<HTMLInputElement>(null)
   const restoreRef = useRef<HTMLInputElement>(null)
 
@@ -47,14 +49,32 @@ export default function ProfileScreen() {
     setEditingName(false)
   }
 
+  const onExport = async () => {
+    setBusy('Готовим архив…')
+    try {
+      await exportBackup()
+    } catch {
+      window.alert('Не удалось создать бэкап')
+    } finally {
+      setBusy(null)
+    }
+  }
+
   const onRestore = async (file: File | undefined) => {
     if (!file) return
     if (!window.confirm('Восстановление заменит все текущие данные. Продолжить?')) return
+    setBusy('Восстанавливаем…')
     try {
-      await importBackup(file)
+      const r = await importBackup(file)
       setBackupOpen(false)
-    } catch {
-      window.alert('Не удалось восстановить данные из этого файла')
+      window.alert(
+        `Восстановлено: ${r.notes} ${plural(r.notes, ['запись', 'записи', 'записей'])}, ` +
+          `${r.photos} ${plural(r.photos, ['фото', 'фото', 'фото'])}`,
+      )
+    } catch (e) {
+      window.alert(e instanceof BackupError ? e.message : 'Не удалось восстановить данные из этого файла')
+    } finally {
+      setBusy(null)
     }
   }
 
@@ -168,18 +188,22 @@ export default function ProfileScreen() {
         </button>
         {backupOpen && (
           <div className="backup-actions">
-            <button className="btn-accent" onClick={() => void exportBackup()}>
-              Скачать бэкап
+            <button className="btn-accent" disabled={busy != null} onClick={() => void onExport()}>
+              {busy ?? 'Скачать бэкап'}
             </button>
-            <button className="btn-outline" onClick={() => restoreRef.current?.click()}>
-              Восстановить из файла
+            <button className="btn-outline" disabled={busy != null} onClick={() => restoreRef.current?.click()}>
+              Восстановить
             </button>
+            <p className="backup-hint">
+              Архив .zip со всеми записями и фото — фото внутри разложены по папкам. Старые бэкапы .json
+              тоже можно восстановить.
+            </p>
           </div>
         )}
         <input
           ref={restoreRef}
           type="file"
-          accept="application/json"
+          accept=".zip,application/zip,.json,application/json"
           hidden
           onChange={(e) => {
             void onRestore(e.target.files?.[0])
