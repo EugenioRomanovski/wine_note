@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './storage/db'
+import { applyThemeIcons } from './lib/themeIcons'
 import FeedScreen from './screens/FeedScreen'
 import EntryFormScreen from './screens/EntryFormScreen'
 import SuccessScreen from './screens/SuccessScreen'
@@ -19,7 +20,9 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    document.documentElement.dataset.theme = profile?.theme ?? 'light'
+    const theme = profile?.theme ?? 'light'
+    document.documentElement.dataset.theme = theme
+    applyThemeIcons(theme)
   }, [profile?.theme])
 
   return (
