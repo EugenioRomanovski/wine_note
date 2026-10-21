@@ -1465,6 +1465,244 @@ textarea.input {
   margin-bottom: 14px;
 }
 
+/* Друзья и рекомендации */
+.social-username .row-between {
+  gap: 12px;
+}
+
+.social-at-input {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.social-at-input > span {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.social-at-input .input {
+  padding-left: 32px;
+}
+
+.social-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.social-actions > button {
+  flex: 1;
+}
+
+.social-search {
+  display: flex;
+  gap: 10px;
+}
+
+.social-search-btn {
+  width: auto;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.social-search-btn:disabled {
+  opacity: 0.55;
+}
+
+.social-subtitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.social-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.social-subtitle + .social-row {
+  border-top: none;
+  padding-top: 0;
+}
+
+.social-who {
+  font-size: 15px;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-row-actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.social-row .btn-text {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.social-row .btn-text:disabled {
+  opacity: 0.5;
+}
+
+.social-accent {
+  color: var(--accent) !important;
+}
+
+.social-note {
+  font-size: 14px;
+  color: var(--success);
+}
+
+.social-error {
+  color: var(--danger);
+  font-size: 14px;
+  margin: -6px 0 12px;
+}
+
+.social-recs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.rec-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px 18px 8px;
+}
+
+.rec-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 10px 0 4px;
+  color: var(--text);
+}
+
+.rec-from {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.rec-message {
+  margin-top: 10px;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.rec-comment {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.rec-tags {
+  margin-top: 12px;
+}
+
+.rec-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: -8px;
+}
+
+.recommend-btn {
+  margin-top: 26px;
+}
+
+.rec-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  margin: 0 -24px;
+  padding: 0 24px 4px;
+}
+
+.rec-friend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rec-friend {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.rec-friend.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.rec-friend-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.rec-friend-user {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.rec-message-input {
+  resize: none;
+  font-family: inherit;
+}
+
+.rec-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.rec-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.rec-send {
+  margin-top: 14px;
+}
+
+.rec-send:disabled {
+  opacity: 0.55;
+}
+
 /* Аккаунт (вход по коду из письма) */
 .account-card {
   background: var(--card);

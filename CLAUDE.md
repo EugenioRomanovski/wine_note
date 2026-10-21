@@ -1,7 +1,7 @@
 # Wine Note — заметки для Claude
 
 Local-first приложение для заметок о вине: React 19 + TS + Vite, Dexie (IndexedDB), HashRouter.
-Свой бэкенд — только Supabase (проект `winenote`) для аккаунта и профиля; записи о винах хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
+Свой бэкенд — только Supabase (проект `winenote`): аккаунт, профиль, друзья и рекомендации; записи о винах хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
 поэтому избегай веб-only API без фолбэка и не переходи на BrowserRouter.
 
 ## Команды
@@ -34,6 +34,13 @@ Local-first приложение для заметок о вине: React 19 + T
 - Профиль (имя, аватар) синхронизируется: таблица `profiles` + приватный бакет `avatars`
   (`<user id>/avatar.jpg`), RLS — только свои данные. Логика — `src/lib/profileSync.ts`
   (побеждает последнее изменение, `Profile.updatedAt`).
+- Друзья и рекомендации — `src/lib/social.ts`: `profiles.username` (уникальный, `^[a-z0-9_]{3,20}$`),
+  таблицы `friendships` (pending/accepted, одна запись на пару) и `recommendations` (копия вина
+  в jsonb, отправить можно только другу — RLS). Чужие профили напрямую не читаются: только через
+  функции `find_user` (точный юзернейм), `send_friend_request`, `respond_friend_request`,
+  `my_friends`, `my_recommendations` (security definer, фильтруют по `auth.uid()`).
+- Коннектор Supabase не выполняет `drop`/`alter policy` без подтверждения пользователя (таймаут):
+  такие изменения — только по согласованию.
 - Схема базы: миграции в `supabase/migrations/` (имя файла = версия из `list_migrations`).
   Применяются через коннектор Supabase, файл в репозитории — копия для истории.
 - Секретный ключ (service_role) в клиентский код не попадает никогда.

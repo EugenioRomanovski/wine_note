@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
@@ -7,12 +8,17 @@ import { ImpressionChip } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { BottomNav } from '../components/BottomNav'
 import { ArrowLeftIcon, PencilIcon, PinIcon, TrashIcon } from '../components/icons'
+import { RecommendSheet } from '../components/RecommendSheet'
+import { useAuth } from '../hooks/useAuth'
 
 export default function NoteDetailScreen() {
   const { id } = useParams()
   const noteId = Number(id)
   const navigate = useNavigate()
   const note = useLiveQuery(() => db.notes.get(noteId), [noteId])
+  const signedIn = !!useAuth()
+  const [recommendOpen, setRecommendOpen] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   if (!note) return null
 
@@ -103,7 +109,25 @@ export default function NoteDetailScreen() {
             ))}
           </div>
         )}
+        {signedIn && (
+          <button className="btn-outline recommend-btn" onClick={() => setRecommendOpen(true)}>
+            Порекомендовать другу
+          </button>
+        )}
       </div>
+
+      {recommendOpen && (
+        <RecommendSheet
+          note={note}
+          onClose={() => setRecommendOpen(false)}
+          onSent={(name) => {
+            setRecommendOpen(false)
+            setToast(`Рекомендация отправлена: ${name}`)
+            setTimeout(() => setToast(null), 2500)
+          }}
+        />
+      )}
+      {toast && <div className="toast">{toast}</div>}
 
       <BottomNav active="none" />
     </div>

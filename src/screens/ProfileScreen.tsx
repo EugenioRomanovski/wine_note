@@ -8,6 +8,7 @@ import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
 import { AccountCard } from '../components/AccountCard'
+import { SocialPanel } from '../components/SocialPanel'
 import {
   CameraIcon,
   ChevronDownIcon,
@@ -118,6 +119,7 @@ export default function ProfileScreen() {
 
       <div className="profile-section-title">Аккаунт</div>
       <AccountCard />
+      <SocialPanel />
 
       <div className="profile-section-title">Настройки</div>
       <div className="card-list">
