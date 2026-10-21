@@ -1,7 +1,7 @@
 # Wine Note — заметки для Claude
 
 Local-first приложение для заметок о вине: React 19 + TS + Vite, Dexie (IndexedDB), HashRouter.
-Бэкенда нет. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
+Свой бэкенд — только Supabase (проект `winenote`) для аккаунтов; записи хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
 поэтому избегай веб-only API без фолбэка и не переходи на BrowserRouter.
 
 ## Команды
@@ -22,6 +22,13 @@ Local-first приложение для заметок о вине: React 19 + T
 - Макеты экранов — `design/img/*.png` (светлая и `_dark` версии).
 - Справочник сортов для подсказок: исходник `data/grapes.csv` → `npm run build:grapes` →
   `src/data/grapes.json` (генерируется, руками не править). Поиск — `src/lib/grapeSearch.ts`.
+
+## Supabase
+- Клиент — `src/lib/supabase.ts` (null, если нет `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`;
+  приложение тогда работает без аккаунта). Значения публичные: `.env.example`, на Vercel — env vars.
+- Вход — email + одноразовый код (`signInWithOtp` / `verifyOtp`), без ссылок и редиректов:
+  они конфликтуют с HashRouter и Capacitor. Шаблоны писем должны содержать `{{ .Token }}`.
+- Секретный ключ (service_role) в клиентский код не попадает никогда.
 
 ## Git
 - Владелец проекта разрешил коммитить и пушить прямо в `main`, без отдельных веток и PR.

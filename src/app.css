@@ -1465,6 +1465,77 @@ textarea.input {
   margin-bottom: 14px;
 }
 
+/* Аккаунт (вход по коду из письма) */
+.account-card {
+  background: var(--card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  margin-bottom: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-muted,
+.account-text,
+.account-hint {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.account-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.account-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.account-email {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.account-code {
+  letter-spacing: 0.3em;
+  font-size: 20px;
+  text-align: center;
+}
+
+.account-code::placeholder {
+  letter-spacing: normal;
+  font-size: 16px;
+}
+
+.account-error {
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.account-btn:disabled,
+.account-links .btn-text:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.account-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: -4px -8px 0;
+}
+
+.account-links .btn-text {
+  font-size: 14px;
+}
+
 .card-list {
   background: var(--card);
   border-radius: 20px;

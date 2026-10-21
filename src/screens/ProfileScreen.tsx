@@ -6,6 +6,7 @@ import { plural } from '../lib/stats'
 import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
+import { AccountCard } from '../components/AccountCard'
 import {
   CameraIcon,
   ChevronDownIcon,
@@ -109,6 +110,9 @@ export default function ProfileScreen() {
         />
         <div className="profile-name">{profile.name || 'Без имени'}</div>
       </div>
+
+      <div className="profile-section-title">Аккаунт</div>
+      <AccountCard />
 
       <div className="profile-section-title">Настройки</div>
       <div className="card-list">
