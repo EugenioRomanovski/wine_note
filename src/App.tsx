@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './storage/db'
 import { applyThemeIcons } from './lib/themeIcons'
+import { AuthLinkHandler } from './components/AuthLinkHandler'
 import FeedScreen from './screens/FeedScreen'
 import EntryFormScreen from './screens/EntryFormScreen'
 import SuccessScreen from './screens/SuccessScreen'
@@ -27,6 +28,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <AuthLinkHandler />
       <Routes>
         <Route path="/" element={<FeedScreen />} />
         <Route path="/taste" element={<TasteScreen />} />

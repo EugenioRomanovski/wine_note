@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { authErrorMessage, isValidEmail } from '../lib/authErrors'
 import { useAuth } from '../hooks/useAuth'
+import { AUTH_LINK_ERROR_KEY } from '../lib/authLink'
 
 const RESEND_SECONDS = 60
 
@@ -12,7 +13,16 @@ export function AccountCard() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(() => {
+    // ошибка входа по ссылке из письма (см. AuthLinkHandler)
+    try {
+      const e = sessionStorage.getItem(AUTH_LINK_ERROR_KEY)
+      sessionStorage.removeItem(AUTH_LINK_ERROR_KEY)
+      return e ? `Ссылка не сработала: ${e}` : null
+    } catch {
+      return null
+    }
+  })
   const [cooldown, setCooldown] = useState(0)
 
   useEffect(() => {
@@ -74,8 +84,8 @@ export function AccountCard() {
     return (
       <div className="account-card">
         <div className="account-text">
-          Мы отправили код на <b>{email.trim()}</b>. Введите его ниже — письмо может прийти в течение минуты,
-          проверьте и «Спам».
+          Мы отправили письмо на <b>{email.trim()}</b>. Введите код из него или нажмите кнопку в письме. Письмо
+          может прийти в течение минуты — проверьте и «Спам».
         </div>
         <input
           className="input account-code"

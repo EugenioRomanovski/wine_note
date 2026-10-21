@@ -26,8 +26,11 @@ Local-first приложение для заметок о вине: React 19 + T
 ## Supabase
 - Клиент — `src/lib/supabase.ts` (null, если нет `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`;
   приложение тогда работает без аккаунта). Значения публичные: `.env.example`, на Vercel — env vars.
-- Вход — email + одноразовый код (`signInWithOtp` / `verifyOtp`), без ссылок и редиректов:
-  они конфликтуют с HashRouter и Capacitor. Шаблоны писем должны содержать `{{ .Token }}`.
+- Вход — email + одноразовый код (`signInWithOtp` / `verifyOtp`). В письме также ссылка
+  `https://wine-note-one.vercel.app/?token_hash={{ .TokenHash }}&type=email` — параметры до `#`,
+  чтобы не конфликтовать с HashRouter; её обрабатывает `src/components/AuthLinkHandler.tsx`.
+  Стандартный `{{ .ConfirmationURL }}` не использовать (токены в `#` ломают маршруты).
+  Шаблоны писем (Magic Link и Confirm signup) должны содержать `{{ .Token }}` и эту ссылку.
 - Секретный ключ (service_role) в клиентский код не попадает никогда.
 
 ## Git
