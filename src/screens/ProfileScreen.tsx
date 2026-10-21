@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../storage/db'
 import { BackupError, exportBackup, importBackup } from '../lib/backup'
 import { plural } from '../lib/stats'
+import { syncProfile } from '../lib/profileSync'
 import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
@@ -41,12 +42,16 @@ export default function ProfileScreen() {
   const onAvatarChosen = async (file: File | undefined) => {
     if (!file) return
     const photoId = (await db.photos.add({ blob: file, createdAt: new Date().toISOString() })) as number
-    await db.profile.update(profile.id!, { avatarPhotoId: photoId })
+    await db.profile.update(profile.id!, { avatarPhotoId: photoId, updatedAt: new Date().toISOString() })
+    void syncProfile()
   }
 
   const saveName = async () => {
     const name = nameDraft.trim()
-    if (name) await db.profile.update(profile.id!, { name })
+    if (name && name !== profile.name) {
+      await db.profile.update(profile.id!, { name, updatedAt: new Date().toISOString() })
+      void syncProfile()
+    }
     setEditingName(false)
   }
 

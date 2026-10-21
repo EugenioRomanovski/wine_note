@@ -4,6 +4,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './storage/db'
 import { applyThemeIcons } from './lib/themeIcons'
 import { AuthLinkHandler } from './components/AuthLinkHandler'
+import { useAuth } from './hooks/useAuth'
+import { syncProfile } from './lib/profileSync'
 import FeedScreen from './screens/FeedScreen'
 import EntryFormScreen from './screens/EntryFormScreen'
 import SuccessScreen from './screens/SuccessScreen'
@@ -19,6 +21,18 @@ export default function App() {
       if (count === 0) return db.profile.add({ name: '', theme: 'light' })
     })
   }, [])
+
+  // имя и аватар синхронизируются с Supabase: при входе, при запуске и когда появилась сеть
+  const userId = useAuth()?.user.id
+  const profileId = profile?.id
+  useEffect(() => {
+    // на новом устройстве локальный профиль создаётся при первом запуске — ждём его
+    if (!userId || profileId == null) return
+    void syncProfile()
+    const onOnline = () => void syncProfile()
+    window.addEventListener('online', onOnline)
+    return () => window.removeEventListener('online', onOnline)
+  }, [userId, profileId])
 
   useEffect(() => {
     const theme = profile?.theme ?? 'light'

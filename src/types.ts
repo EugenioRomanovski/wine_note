@@ -31,6 +31,12 @@ export interface Profile {
   theme: 'light' | 'dark'
   /** Вид ленты при открытии приложения (по умолчанию — полный) */
   feedView?: FeedView
+  /** Когда имя или аватар меняли в последний раз (ISO) — для синхронизации с Supabase */
+  updatedAt?: string
+  /** Аккаунт, с которым профиль синхронизирован в последний раз */
+  syncedUserId?: string
+  /** Какой локальный аватар уже загружен в облако */
+  syncedAvatarPhotoId?: number
 }
 
 export type FeedView = 'full' | 'short'

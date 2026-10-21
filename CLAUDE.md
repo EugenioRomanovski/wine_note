@@ -1,7 +1,7 @@
 # Wine Note — заметки для Claude
 
 Local-first приложение для заметок о вине: React 19 + TS + Vite, Dexie (IndexedDB), HashRouter.
-Свой бэкенд — только Supabase (проект `winenote`) для аккаунтов; записи хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
+Свой бэкенд — только Supabase (проект `winenote`) для аккаунта и профиля; записи о винах хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
 поэтому избегай веб-only API без фолбэка и не переходи на BrowserRouter.
 
 ## Команды
@@ -31,6 +31,11 @@ Local-first приложение для заметок о вине: React 19 + T
   чтобы не конфликтовать с HashRouter; её обрабатывает `src/components/AuthLinkHandler.tsx`.
   Стандартный `{{ .ConfirmationURL }}` не использовать (токены в `#` ломают маршруты).
   Шаблоны писем (Magic Link и Confirm signup) должны содержать `{{ .Token }}` и эту ссылку.
+- Профиль (имя, аватар) синхронизируется: таблица `profiles` + приватный бакет `avatars`
+  (`<user id>/avatar.jpg`), RLS — только свои данные. Логика — `src/lib/profileSync.ts`
+  (побеждает последнее изменение, `Profile.updatedAt`).
+- Схема базы: миграции в `supabase/migrations/` (имя файла = версия из `list_migrations`).
+  Применяются через коннектор Supabase, файл в репозитории — копия для истории.
 - Секретный ключ (service_role) в клиентский код не попадает никогда.
 
 ## Git
