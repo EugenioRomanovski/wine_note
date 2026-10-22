@@ -38,7 +38,10 @@ Local-first приложение для заметок о вине: React 19 + T
   таблицы `friendships` (pending/accepted, одна запись на пару) и `recommendations` (копия вина
   в jsonb, отправить можно только другу — RLS). Чужие профили напрямую не читаются: только через
   функции `find_user` (точный юзернейм), `send_friend_request`, `respond_friend_request`,
-  `my_friends`, `my_recommendations` (security definer, фильтруют по `auth.uid()`).
+  `my_friends`, `my_recommendations_v2` (security definer, фильтруют по `auth.uid()`).
+- Фото рекомендаций — приватный бакет `rec-photos` (`<sender id>/<recommendation id>.jpg`,
+  уменьшается до 1280 px); видят отправитель и получатель; `photo_path` обязан лежать в папке
+  отправителя (check-constraint). Показ — через `createSignedUrl` (`recPhotoUrl`).
 - Коннектор Supabase не выполняет `drop`/`alter policy` без подтверждения пользователя (таймаут):
   такие изменения — только по согласованию.
 - Схема базы: миграции в `supabase/migrations/` (имя файла = версия из `list_migrations`).

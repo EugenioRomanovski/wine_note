@@ -1,5 +1,6 @@
 import type { Impression, WineColor, WineNote } from '../types'
 import { supabase } from './supabase'
+import { resizeImage } from './image'
 
 export const USERNAME_RE = /^[a-z0-9_]{3,20}$/
 
@@ -64,6 +65,8 @@ export interface Recommendation {
   id: string
   wine: SharedWine
   message: string | null
+  /** Путь к фото в бакете rec-photos или null */
+  photoPath: string | null
   createdAt: string
   senderUsername: string | null
   senderName: string | null
@@ -137,12 +140,13 @@ export async function removeFriendship(friendshipId: string) {
 }
 
 export async function listRecommendations(): Promise<Recommendation[]> {
-  const { data, error } = await client().rpc('my_recommendations')
+  const { data, error } = await client().rpc('my_recommendations_v2')
   if (error) throw error
   return (data ?? []).map((r: Record<string, unknown>) => ({
     id: r.id as string,
     wine: r.wine as SharedWine,
     message: (r.message as string | null) ?? null,
+    photoPath: (r.photo_path as string | null) ?? null,
     createdAt: r.created_at as string,
     senderUsername: (r.sender_username as string | null) ?? null,
     senderName: (r.sender_name as string | null) ?? null,
@@ -154,13 +158,42 @@ export async function deleteRecommendation(id: string) {
   if (error) throw error
 }
 
-export async function sendRecommendation(recipientId: string, wine: SharedWine, message: string) {
+export async function sendRecommendation(recipientId: string, wine: SharedWine, message: string, photo?: Blob) {
   const sender = await currentUserId()
+  const id = crypto.randomUUID()
+  let photoPath: string | null = null
+  if (photo) {
+    // фото — в папку отправителя; видят его только отправитель и получатель (RLS)
+    photoPath = `${sender}/${id}.jpg`
+    const { error } = await client()
+      .storage.from('rec-photos')
+      .upload(photoPath, await resizeImage(photo, 1280), { contentType: 'image/jpeg' })
+    if (error) throw error
+  }
   const text = message.trim()
   const { error } = await client()
     .from('recommendations')
-    .insert({ sender, recipient: recipientId, wine, message: text || null })
-  if (error) throw error
+    .insert({ id, sender, recipient: recipientId, wine, message: text || null, photo_path: photoPath })
+  if (error) {
+    if (photoPath) await client().storage.from('rec-photos').remove([photoPath])
+    throw error
+  }
+}
+
+const photoUrls = new Map<string, Promise<string | null>>()
+
+/** Временная ссылка на фото рекомендации (бакет приватный); кэшируется на время работы приложения. */
+export function recPhotoUrl(path: string): Promise<string | null> {
+  let url = photoUrls.get(path)
+  if (!url) {
+    url = client()
+      .storage.from('rec-photos')
+      .createSignedUrl(path, 60 * 60 * 6)
+      .then(({ data }) => data?.signedUrl ?? null)
+      .catch(() => null)
+    photoUrls.set(path, url)
+  }
+  return url
 }
 
 /** Сколько рекомендаций пришло позже seenAt (все, если seenAt не задан). */

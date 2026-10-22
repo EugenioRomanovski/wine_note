@@ -19,6 +19,7 @@ import {
 import { WINE_COLORS } from '../lib/labels'
 import { formatDay } from '../lib/dates'
 import { ImpressionChip } from './ImpressionChip'
+import { useRecPhotoUrl } from '../hooks/useRecPhotoUrl'
 
 const who = (name: string | null | undefined, username: string | null | undefined) =>
   [name?.trim(), username ? `@${username}` : null].filter(Boolean).join(' · ') || 'Без имени'
@@ -316,8 +317,13 @@ function RecommendationsList(props: { items: Recommendation[]; loading: boolean;
               <ImpressionChip impression={w.impression} />
               <span className="note-date">{formatDay(r.createdAt)}</span>
             </div>
-            <div className="rec-name">{w.name}</div>
-            <div className="rec-from">Советует {who(r.senderName, r.senderUsername)}</div>
+            <div className="rec-head">
+              <div className="rec-head-text">
+                <div className="rec-name">{w.name}</div>
+                <div className="rec-from">Советует {who(r.senderName, r.senderUsername)}</div>
+              </div>
+              {r.photoPath && <RecThumb path={r.photoPath} />}
+            </div>
             {r.message && <div className="rec-message">«{r.message}»</div>}
             {w.comment && <div className="rec-comment">Заметка друга: {w.comment}</div>}
             {w.place && <div className="rec-comment">Где пили: {w.place}</div>}
@@ -350,4 +356,9 @@ function RecommendationsList(props: { items: Recommendation[]; loading: boolean;
       })}
     </div>
   )
+}
+
+function RecThumb({ path }: { path: string }) {
+  const url = useRecPhotoUrl(path)
+  return <div className="rec-thumb">{url && <img src={url} alt="" />}</div>
 }

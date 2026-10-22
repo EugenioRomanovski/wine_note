@@ -6,6 +6,7 @@ import { WINE_COLORS } from '../lib/labels'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { BottomNav } from '../components/BottomNav'
 import { ArrowLeftIcon, PinIcon, TrashIcon } from '../components/icons'
+import { useRecPhotoUrl } from '../hooks/useRecPhotoUrl'
 
 const who = (name: string | null, username: string | null) =>
   [name?.trim(), username ? `@${username}` : null].filter(Boolean).join(' · ') || 'друг'
@@ -29,6 +30,8 @@ export default function RecommendationScreen() {
       .then((all) => setLoaded({ id, rec: all.find((r) => r.id === id) ?? null }))
       .catch(() => setError(true))
   }, [id, rec])
+
+  const photoUrl = useRecPhotoUrl(rec?.photoPath)
 
   const remove = async () => {
     if (!window.confirm('Удалить рекомендацию?')) return
@@ -65,12 +68,24 @@ export default function RecommendationScreen() {
 
   return (
     <div className="screen with-nav">
-      <div className="detail-plain-actions">
-        {back}
-        <button className="icon-btn" onClick={() => void remove()} aria-label="Удалить рекомендацию">
-          <TrashIcon size={18} />
-        </button>
-      </div>
+      {rec.photoPath ? (
+        <div className="detail-hero">
+          {photoUrl && <img src={photoUrl} alt={w.name} />}
+          <button className="hero-btn back" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeftIcon size={20} />
+          </button>
+          <button className="hero-btn delete" onClick={() => void remove()} aria-label="Удалить рекомендацию">
+            <TrashIcon size={18} />
+          </button>
+        </div>
+      ) : (
+        <div className="detail-plain-actions">
+          {back}
+          <button className="icon-btn" onClick={() => void remove()} aria-label="Удалить рекомендацию">
+            <TrashIcon size={18} />
+          </button>
+        </div>
+      )}
 
       <div className="detail-body">
         <div className="rec-detail-from">

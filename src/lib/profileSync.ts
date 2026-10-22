@@ -1,6 +1,7 @@
 import { db } from '../storage/db'
 import type { Profile } from '../types'
 import { supabase } from './supabase'
+import { resizeImage } from './image'
 
 export interface RemoteProfile {
   display_name: string
@@ -31,19 +32,6 @@ export function decideSync(local: Profile, remote: RemoteProfile | null, userId:
   if (r > l) return 'pull'
   if (l > r) return 'push'
   return 'none'
-}
-
-/** Уменьшает картинку до maxSize по большей стороне (JPEG). */
-async function resizeImage(blob: Blob, maxSize = 512): Promise<Blob> {
-  if (typeof createImageBitmap !== 'function') return blob
-  const bitmap = await createImageBitmap(blob)
-  const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(bitmap.width * scale)
-  canvas.height = Math.round(bitmap.height * scale)
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-  bitmap.close()
-  return new Promise((resolve) => canvas.toBlob((b) => resolve(b ?? blob), 'image/jpeg', 0.85))
 }
 
 let running: Promise<void> | null = null
@@ -102,7 +90,7 @@ async function push(userId: string, local: Profile, remote: RemoteProfile | null
       const path = `${userId}/avatar.jpg`
       const { error } = await supabase!.storage
         .from('avatars')
-        .upload(path, await resizeImage(photo.blob), { upsert: true, contentType: 'image/jpeg' })
+        .upload(path, await resizeImage(photo.blob, 512), { upsert: true, contentType: 'image/jpeg' })
       if (error) throw error
       avatarPath = path
     }

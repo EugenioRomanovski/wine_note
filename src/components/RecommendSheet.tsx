@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { WineNote } from '../types'
+import { db } from '../storage/db'
+import { PhotoImg } from './PhotoImg'
 import { listFriends, sendRecommendation, wineFromNote, type Friend } from '../lib/social'
 import { XIcon } from './icons'
 
@@ -17,6 +19,8 @@ export function RecommendSheet({ note, onClose, onSent }: Props) {
   const [message, setMessage] = useState('')
   const [withComment, setWithComment] = useState(false)
   const [withPlace, setWithPlace] = useState(false)
+  const photoId = note.photoIds[0] ?? null
+  const [withPhoto, setWithPhoto] = useState(photoId != null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,7 +42,13 @@ export function RecommendSheet({ note, onClose, onSent }: Props) {
     setBusy(true)
     setError(null)
     try {
-      await sendRecommendation(friend.userId, wineFromNote(note, { place: withPlace, comment: withComment }), message)
+      const photo = withPhoto && photoId != null ? (await db.photos.get(photoId))?.blob : undefined
+      await sendRecommendation(
+        friend.userId,
+        wineFromNote(note, { place: withPlace, comment: withComment }),
+        message,
+        photo,
+      )
       onSent(friend.displayName || (friend.username ? `@${friend.username}` : 'другу'))
     } catch {
       setError('Не удалось отправить. Проверьте интернет.')
@@ -92,6 +102,13 @@ export function RecommendSheet({ note, onClose, onSent }: Props) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
+            {photoId != null && (
+              <label className="rec-check">
+                <input type="checkbox" checked={withPhoto} onChange={(e) => setWithPhoto(e.target.checked)} />
+                <PhotoImg photoId={photoId} className="rec-check-thumb" alt="" />
+                Приложить фото
+              </label>
+            )}
             {note.comment && (
               <label className="rec-check">
                 <input type="checkbox" checked={withComment} onChange={(e) => setWithComment(e.target.checked)} />
