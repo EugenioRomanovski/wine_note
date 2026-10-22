@@ -5,7 +5,7 @@ import { formatDay, formatDayTime } from '../lib/dates'
 import { WINE_COLORS } from '../lib/labels'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { BottomNav } from '../components/BottomNav'
-import { ArrowLeftIcon, PinIcon, TrashIcon } from '../components/icons'
+import { ArrowLeftIcon, BagIcon, PinIcon, TrashIcon } from '../components/icons'
 import { useRecPhotoUrl } from '../hooks/useRecPhotoUrl'
 
 const who = (name: string | null, username: string | null) =>
@@ -100,6 +100,12 @@ export default function RecommendationScreen() {
           <div className="note-place">
             <PinIcon size={16} />
             {w.place}
+          </div>
+        )}
+        {w.boughtAt && (
+          <div className="note-place note-bought">
+            <BagIcon size={16} />
+            Купили: {w.boughtAt}
           </div>
         )}
         {rec.message && (

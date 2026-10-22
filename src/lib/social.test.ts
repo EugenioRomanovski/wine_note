@@ -22,6 +22,7 @@ describe('wineFromNote', () => {
     impression: 'want_more',
     color: 'red',
     place: 'Дома',
+    boughtAt: 'ВинЛаб',
     comment: 'Очень танинное',
     grapes: ['Неббиоло'],
     regions: ['Пьемонт'],
@@ -32,12 +33,13 @@ describe('wineFromNote', () => {
     updatedAt: 'x',
   }
 
-  it('hides place and comment unless allowed', () => {
+  it('hides place and comment unless allowed, always sends where it was bought', () => {
     const w = wineFromNote(note, { place: false, comment: false })
     expect(w).toEqual({
       name: 'Бароло',
       impression: 'want_more',
       color: 'red',
+      boughtAt: 'ВинЛаб',
       grapes: ['Неббиоло'],
       regions: ['Пьемонт'],
       tags: ['сухое'],

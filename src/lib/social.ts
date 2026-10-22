@@ -27,6 +27,8 @@ export interface SharedWine {
   regions: string[]
   tags: string[]
   place?: string
+  /** Где купили — передаётся всегда, если указано */
+  boughtAt?: string
   comment?: string
   tastedAt?: string
 }
@@ -42,6 +44,7 @@ export function wineFromNote(note: WineNote, opts: { place: boolean; comment: bo
   }
   if (note.color) wine.color = note.color
   if (opts.place && note.place) wine.place = note.place
+  if (note.boughtAt) wine.boughtAt = note.boughtAt
   if (opts.comment && note.comment) wine.comment = note.comment
   return wine
 }
