@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { db } from '../storage/db'
 import { useAuth } from '../hooks/useAuth'
 import { useSocial } from '../hooks/useSocial'
@@ -310,7 +311,7 @@ function RecommendationsList(props: { items: Recommendation[]; loading: boolean;
           ...(w.tags ?? []),
         ]
         return (
-          <div className="rec-card" key={r.id}>
+          <Link className="rec-card" key={r.id} to={`/rec/${r.id}`} state={{ rec: r }}>
             <div className="row-between">
               <ImpressionChip impression={w.impression} />
               <span className="note-date">{formatDay(r.createdAt)}</span>
@@ -330,11 +331,21 @@ function RecommendationsList(props: { items: Recommendation[]; loading: boolean;
               </div>
             )}
             <div className="rec-actions">
-              <button className="btn-text" disabled={busy === r.id} onClick={() => void remove(r.id)}>
+              <button
+                className="btn-text"
+                disabled={busy === r.id}
+                onClick={(e) => {
+                  // не открывать карточку при удалении
+                  e.preventDefault()
+                  e.stopPropagation()
+                  void remove(r.id)
+                }}
+              >
                 Удалить
               </button>
+              <span className="rec-open">Открыть ›</span>
             </div>
-          </div>
+          </Link>
         )
       })}
     </div>

@@ -12,6 +12,7 @@ import SuccessScreen from './screens/SuccessScreen'
 import NoteDetailScreen from './screens/NoteDetailScreen'
 import TasteScreen from './screens/TasteScreen'
 import ProfileScreen from './screens/ProfileScreen'
+import RecommendationScreen from './screens/RecommendationScreen'
 
 export default function App() {
   const profile = useLiveQuery(() => db.profile.toCollection().first(), [])
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/note/:id" element={<NoteDetailScreen />} />
         <Route path="/note/:id/edit" element={<EntryFormScreen />} />
         <Route path="/note/:id/success" element={<SuccessScreen />} />
+        <Route path="/rec/:id" element={<RecommendationScreen />} />
       </Routes>
     </div>
   )
