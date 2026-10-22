@@ -1132,7 +1132,8 @@ textarea.input {
 .detail-hero {
   position: relative;
   margin: -20px -20px 0;
-  height: 320px;
+  /* квадратное фото на всю ширину карточки */
+  aspect-ratio: 1 / 1;
   background: var(--bg-secondary);
 }
 
