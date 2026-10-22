@@ -2020,3 +2020,10 @@ textarea.input {
   font-size: 14px;
   border-radius: 14px;
 }
+
+/* Что подставили из подсказки названия */
+.autofill-hint {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}

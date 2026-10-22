@@ -9,6 +9,8 @@ import { ImpressionIcon } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { PhotoCardPreview } from '../components/PhotoCardPreview'
 import { GrapeInput } from '../components/GrapeInput'
+import { WineNameInput } from '../components/WineNameInput'
+import type { WineInfo } from '../lib/wineSearch'
 import { CameraIcon, ChevronDownIcon, ChevronUpIcon, ImageIcon, PlusIcon, ReloadIcon, XIcon } from '../components/icons'
 
 function toLocalInputValue(iso: string): string {
@@ -28,9 +30,12 @@ export default function EntryFormScreen() {
     [editId],
   )
   const suggestions = useLiveQuery(async () => buildSuggestions(await db.notes.toArray()), [])
+  const recentNotes = useLiveQuery(() => db.notes.orderBy('tastedAt').reverse().toArray(), [])
 
   const [initialized, setInitialized] = useState(false)
   const [name, setName] = useState('')
+  /** Что подставили из выбранной подсказки — показываем под названием */
+  const [autoFilled, setAutoFilled] = useState('')
   const [impression, setImpression] = useState<Impression | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [photoId, setPhotoId] = useState<number | null>(null)
@@ -99,6 +104,30 @@ export default function EntryFormScreen() {
     setRegionInput('')
   }
 
+  /** Выбрали вино из подсказок: подставляем то, что ещё не заполнено вручную. */
+  const pickWine = (wine: WineInfo) => {
+    setName(wine.name)
+    const filled: string[] = []
+    if (color == null && wine.color) {
+      setColor(wine.color)
+      filled.push(WINE_COLORS.find((c) => c.value === wine.color)?.label ?? '')
+    }
+    if (grapes.length === 0 && wine.grapes.length > 0) {
+      setGrapes(wine.grapes)
+      filled.push(wine.grapes.join(' / '))
+    }
+    if (regions.length === 0 && wine.regions.length > 0) {
+      setRegions(wine.regions)
+      filled.push(...wine.regions)
+    }
+    const newTags = wine.tags.filter((t) => !tags.includes(t))
+    if (newTags.length > 0) {
+      setTags([...tags, ...newTags])
+      filled.push(...newTags)
+    }
+    setAutoFilled(filled.filter(Boolean).join(' · '))
+  }
+
   const canSave = name.trim().length > 0 && impression != null && !saving
 
   const save = async () => {
@@ -160,12 +189,16 @@ export default function EntryFormScreen() {
         <div className="form-label">
           <span className="num">1</span> Название вина
         </div>
-        <input
-          className="input"
+        <WineNameInput
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Марка с бутылки и название из меню"
+          onChange={(v) => {
+            setName(v)
+            setAutoFilled('')
+          }}
+          onPick={pickWine}
+          notes={recentNotes ?? []}
         />
+        {autoFilled && <div className="autofill-hint">Заполнили в деталях: {autoFilled}</div>}
       </div>
 
       <div className="form-section">

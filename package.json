@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "build:grapes": "node scripts/build-grapes.mjs"
+    "build:grapes": "node scripts/build-grapes.mjs",
+    "build:wines": "node scripts/build-wines.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

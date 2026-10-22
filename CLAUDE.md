@@ -22,6 +22,12 @@ Local-first приложение для заметок о вине: React 19 + T
 - Макеты экранов — `design/img/*.png` (светлая и `_dark` версии).
 - Справочник сортов для подсказок: исходник `data/grapes.csv` → `npm run build:grapes` →
   `src/data/grapes.json` (генерируется, руками не править). Поиск — `src/lib/grapeSearch.ts`.
+- Справочник вин для подсказок названия — датасет X-Wines (CC0, ~100 тыс. вин; CSV в репозиторий
+  не кладём): `npm run build:wines -- путь/к/XWines_Full_100K_wines.csv` → `src/data/wines.json`
+  (генерируется; сорта сопоставляются с `grapes.json`, регионы переводятся по `data/wine-regions.csv`,
+  без перевода — страна). Файл грузится отдельно (`?url`) при первом вводе названия.
+  Поиск — `src/lib/wineSearch.ts` (латиница — по началу слов, кириллица — по звучанию),
+  поле — `src/components/WineNameInput.tsx`: сначала свои заметки, выбор заполняет пустые поля.
 
 ## Supabase
 - Клиент — `src/lib/supabase.ts` (null, если нет `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`;
