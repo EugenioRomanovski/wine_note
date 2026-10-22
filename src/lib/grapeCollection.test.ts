@@ -7,7 +7,7 @@ const note = (grapes: string[], impression: WineNote['impression'] = 'good') =>
 
 describe('grapeCollection', () => {
   it('knows the number of main grapes in the dictionary', () => {
-    expect(TOTAL_GRAPES).toBe(423)
+    expect(TOTAL_GRAPES).toBe(424)
   })
 
   it('merges synonyms into the main grape and keeps how they were written', () => {
