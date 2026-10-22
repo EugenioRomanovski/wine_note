@@ -162,3 +162,19 @@ export async function sendRecommendation(recipientId: string, wine: SharedWine, 
     .insert({ sender, recipient: recipientId, wine, message: text || null })
   if (error) throw error
 }
+
+/** Сколько рекомендаций пришло позже seenAt (все, если seenAt не задан). */
+export async function countNewRecommendations(seenAt: string | undefined): Promise<number> {
+  const me = await currentUserId()
+  // фильтр по получателю обязателен: правила доступа показывают и отправленные мной
+  let query = client().from('recommendations').select('id', { count: 'exact', head: true }).eq('recipient', me)
+  if (seenAt) query = query.gt('created_at', seenAt)
+  const { count, error } = await query
+  if (error) throw error
+  return count ?? 0
+}
+
+/** Самая поздняя дата из списка ISO-строк (или undefined для пустого списка). */
+export function latestDate(dates: string[]): string | undefined {
+  return dates.reduce<string | undefined>((max, d) => (!max || Date.parse(d) > Date.parse(max) ? d : max), undefined)
+}

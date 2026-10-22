@@ -37,6 +37,8 @@ export interface Profile {
   syncedUserId?: string
   /** Какой локальный аватар уже загружен в облако */
   syncedAvatarPhotoId?: number
+  /** Время самой свежей рекомендации от друзей, которую пользователь уже видел (ISO) */
+  recsSeenAt?: string
 }
 
 export type FeedView = 'full' | 'short'

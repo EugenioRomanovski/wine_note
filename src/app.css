@@ -78,6 +78,42 @@
   flex-shrink: 0;
 }
 
+.profile-btn-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* метка «новая рекомендация от друга» на аватаре */
+.rec-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  border: 2px solid var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: rec-badge-pop 0.3s ease-out;
+}
+
+.rec-badge svg path {
+  fill: currentColor;
+}
+
+@keyframes rec-badge-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 .profile-btn img {
   width: 100%;
   height: 100%;

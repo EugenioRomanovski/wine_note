@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { db } from '../storage/db'
 import { useAuth } from '../hooks/useAuth'
 import { useSocial } from '../hooks/useSocial'
 import {
@@ -7,6 +8,7 @@ import {
   removeFriendship,
   respondFriendRequest,
   sendFriendRequest,
+  latestDate,
   setMyUsername,
   usernameError,
   type FoundUser,
@@ -24,6 +26,21 @@ const who = (name: string | null | undefined, username: string | null | undefine
 export function SocialPanel() {
   const userId = useAuth()?.user.id
   const social = useSocial(userId)
+
+  // рекомендации показаны в профиле — снимаем метку-сердечко с аватара в ленте
+  const newest = latestDate(social.recommendations.map((r) => r.createdAt))
+  useEffect(() => {
+    if (!newest) return
+    void db.profile
+      .toCollection()
+      .first()
+      .then((p) => {
+        if (p?.id != null && (!p.recsSeenAt || Date.parse(newest) > Date.parse(p.recsSeenAt))) {
+          return db.profile.update(p.id, { recsSeenAt: newest })
+        }
+      })
+  }, [newest])
+
   if (!userId) return null
 
   return (
