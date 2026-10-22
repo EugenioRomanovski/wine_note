@@ -91,7 +91,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--danger);
+  /* акцентный розовый светлой темы — в обеих темах */
+  background: #9b0047;
   color: #fff;
   border: 2px solid var(--bg);
   display: flex;
