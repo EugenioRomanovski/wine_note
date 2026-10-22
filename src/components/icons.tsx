@@ -89,6 +89,15 @@ export function PinIcon(props: IconProps) {
   )
 }
 
+export function BagIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5.5 8.5h13l-1 11.5h-11z" />
+      <path d="M9 10V7a3 3 0 0 1 6 0v3" />
+    </Svg>
+  )
+}
+
 export function CameraIcon(props: IconProps) {
   return (
     <Svg {...props}>

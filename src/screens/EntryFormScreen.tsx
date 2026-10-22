@@ -35,6 +35,7 @@ export default function EntryFormScreen() {
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [photoId, setPhotoId] = useState<number | null>(null)
   const [place, setPlace] = useState('')
+  const [boughtAt, setBoughtAt] = useState('')
   const [comment, setComment] = useState('')
   const [color, setColor] = useState<WineColor | null>(null)
   const [grapes, setGrapes] = useState<string[]>([])
@@ -59,6 +60,7 @@ export default function EntryFormScreen() {
       setDetailsOpen(true)
       setPhotoId(existing.photoIds[0] ?? null)
       setPlace(existing.place ?? '')
+      setBoughtAt(existing.boughtAt ?? '')
       setComment(existing.comment ?? '')
       setColor(existing.color ?? null)
       setGrapes(existing.grapes ?? [])
@@ -109,6 +111,7 @@ export default function EntryFormScreen() {
           name: name.trim(),
           impression,
           place: place.trim() || undefined,
+          boughtAt: boughtAt.trim() || undefined,
           comment: comment.trim() || undefined,
           color: color ?? undefined,
           grapes,
@@ -124,6 +127,7 @@ export default function EntryFormScreen() {
           name: name.trim(),
           impression,
           place: place.trim() || undefined,
+          boughtAt: boughtAt.trim() || undefined,
           comment: comment.trim() || undefined,
           color: color ?? undefined,
           grapes,
@@ -286,7 +290,19 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">5</span> Ваш комментарий
+                  <span className="num">5</span> Где купили
+                </div>
+                <input
+                  className="input"
+                  value={boughtAt}
+                  onChange={(e) => setBoughtAt(e.target.value)}
+                  placeholder="магазин, сайт или винодельня"
+                />
+              </div>
+
+              <div className="form-section">
+                <div className="form-label">
+                  <span className="num">6</span> Ваш комментарий
                 </div>
                 <textarea
                   className="input"
@@ -300,7 +316,7 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">6</span> Цвет вина
+                  <span className="num">7</span> Цвет вина
                 </div>
                 <div className="color-chips">
                   {WINE_COLORS.map((c) => (
@@ -317,7 +333,7 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">7</span> Сорт винограда
+                  <span className="num">8</span> Сорт винограда
                 </div>
                 <GrapeInput value={grapeInput} onChange={setGrapeInput} onAdd={addGrape} selected={grapes} />
                 <div className="tag-cloud">
@@ -338,7 +354,7 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">8</span> Регион
+                  <span className="num">9</span> Регион
                 </div>
                 <input
                   className="input"
@@ -371,7 +387,7 @@ export default function EntryFormScreen() {
 
               <div className="form-section">
                 <div className="form-label">
-                  <span className="num">9</span> Оттенки вкуса
+                  <span className="num">10</span> Оттенки вкуса
                 </div>
                 <input
                   className="input"

@@ -7,6 +7,8 @@ export interface WineNote {
   name: string
   impression: Impression
   place?: string
+  /** Где купили (магазин, сайт, винодельня) */
+  boughtAt?: string
   comment?: string
   color?: WineColor
   grapes: string[]

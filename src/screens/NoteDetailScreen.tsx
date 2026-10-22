@@ -7,7 +7,7 @@ import { WINE_COLORS } from '../lib/labels'
 import { ImpressionChip } from '../components/ImpressionChip'
 import { PhotoImg } from '../components/PhotoImg'
 import { BottomNav } from '../components/BottomNav'
-import { ArrowLeftIcon, PencilIcon, PinIcon, TrashIcon } from '../components/icons'
+import { ArrowLeftIcon, BagIcon, PencilIcon, PinIcon, TrashIcon } from '../components/icons'
 import { RecommendSheet } from '../components/RecommendSheet'
 import { useAuth } from '../hooks/useAuth'
 
@@ -92,6 +92,12 @@ export default function NoteDetailScreen() {
           <div className="note-place">
             <PinIcon size={16} />
             {note.place}
+          </div>
+        )}
+        {note.boughtAt && (
+          <div className="note-place note-bought">
+            <BagIcon size={16} />
+            Купили: {note.boughtAt}
           </div>
         )}
         {note.comment && (

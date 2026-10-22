@@ -366,6 +366,10 @@
   font-size: 14px;
 }
 
+.note-place + .note-bought {
+  margin-top: 6px;
+}
+
 .note-comment {
   color: var(--text-secondary);
   font-size: 14px;
