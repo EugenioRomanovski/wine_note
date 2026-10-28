@@ -3,7 +3,20 @@ import type { WineNote } from '../types'
 import { formatDay } from '../lib/dates'
 import { ImpressionChip } from './ImpressionChip'
 import { PhotoImg } from './PhotoImg'
-import { PinIcon } from './icons'
+import { BagIcon, PinIcon } from './icons'
+
+/** Где пили, а если не указано — где купили. */
+function NoteWhere({ note, iconSize }: { note: WineNote; iconSize: number }) {
+  const text = note.place || note.boughtAt
+  if (!text) return null
+  const Icon = note.place ? PinIcon : BagIcon
+  return (
+    <div className="note-place">
+      <Icon size={iconSize} />
+      {text}
+    </div>
+  )
+}
 
 function firstPhoto(note: WineNote): number | null {
   return note.photoIds.length > 0 ? note.photoIds[0] : null
@@ -17,12 +30,7 @@ export function NoteCardFull({ note }: { note: WineNote }) {
       <div className="note-card-body">
         <ImpressionChip impression={note.impression} />
         <div className="note-title">{note.name}</div>
-        {note.place && (
-          <div className="note-place">
-            <PinIcon size={15} />
-            {note.place}
-          </div>
-        )}
+        <NoteWhere note={note} iconSize={15} />
         {note.comment && <div className="note-comment">«{note.comment}»</div>}
         <span className="note-date">{formatDay(note.tastedAt)}</span>
       </div>
@@ -39,12 +47,7 @@ export function NoteCardShort({ note }: { note: WineNote }) {
       )}
       <div className="note-short-body">
         <div className="note-short-title">{note.name}</div>
-        {note.place && (
-          <div className="note-place">
-            <PinIcon size={14} />
-            {note.place}
-          </div>
-        )}
+        <NoteWhere note={note} iconSize={14} />
         <div className="row-between">
           <ImpressionChip impression={note.impression} />
           <span className="note-date">{formatDay(note.tastedAt)}</span>
