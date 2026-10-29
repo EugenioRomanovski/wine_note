@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { db } from '../storage/db'
 import { useAuth } from '../hooks/useAuth'
-import { useSocial } from '../hooks/useSocial'
+import { useSocial, type SocialState } from '../hooks/useSocial'
+import { EditableRow } from './EditableRow'
 import {
   deleteRecommendation,
   findUser,
@@ -24,8 +25,8 @@ import { useRecPhotoUrl } from '../hooks/useRecPhotoUrl'
 const who = (name: string | null | undefined, username: string | null | undefined) =>
   [name?.trim(), username ? `@${username}` : null].filter(Boolean).join(' · ') || 'Без имени'
 
-/** Юзернейм, друзья и рекомендации — показывается в профиле, когда пользователь вошёл. */
-export function SocialPanel() {
+/** Юзернейм, друзья и рекомендации для профиля; пока профиль открыт, рекомендации считаются просмотренными. */
+export function useProfileSocial() {
   const userId = useAuth()?.user.id
   const social = useSocial(userId)
 
@@ -43,12 +44,39 @@ export function SocialPanel() {
       })
   }, [newest])
 
-  if (!userId) return null
+  return userId ? social : null
+}
 
+/** Строка «Юзернейм» в настройках — выглядит и работает как «Имя». */
+export function UsernameRow({ social }: { social: SocialState }) {
+  const save = async (draft: string) => {
+    const problem = usernameError(draft)
+    if (problem) return problem
+    try {
+      if ((await setMyUsername(draft)) === 'taken') return 'Этот юзернейм уже занят'
+      await social.reload()
+      return null
+    } catch {
+      return 'Не удалось сохранить. Проверьте интернет.'
+    }
+  }
+  return (
+    <EditableRow
+      label="Юзернейм"
+      value={social.username ?? ''}
+      display={social.loading ? '…' : social.username ? `@${social.username}` : 'не задан'}
+      hint="По нему вас найдут друзья: латинские буквы, цифры и «_», от 3 до 20 символов"
+      prefix="@"
+      transform={(raw) => raw.replace(/^@/, '').toLowerCase()}
+      inputProps={{ autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false, maxLength: 20 }}
+      onSave={save}
+    />
+  )
+}
+
+export function FriendsSection({ social }: { social: SocialState }) {
   return (
     <>
-      <UsernameCard username={social.username} loading={social.loading} onSaved={social.reload} />
-
       <div className="profile-section-title">Друзья</div>
       {social.error && <div className="social-error">{social.error}</div>}
       <FriendsCard
@@ -57,85 +85,16 @@ export function SocialPanel() {
         loading={social.loading}
         reload={social.reload}
       />
-
-      <div className="profile-section-title">Рекомендации от друзей</div>
-      <RecommendationsList items={social.recommendations} loading={social.loading} reload={social.reload} />
     </>
   )
 }
 
-function UsernameCard(props: { username: string | null; loading: boolean; onSaved: () => Promise<void> }) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-
-  if (props.loading) return null
-  const startEdit = () => {
-    setDraft(props.username ?? '')
-    setError(null)
-    setEditing(true)
-  }
-
-  const save = async () => {
-    const problem = usernameError(draft)
-    if (problem) return setError(problem)
-    setBusy(true)
-    try {
-      const res = await setMyUsername(draft)
-      if (res === 'taken') setError('Этот юзернейм уже занят')
-      else {
-        await props.onSaved()
-        setEditing(false)
-      }
-    } catch {
-      setError('Не удалось сохранить. Проверьте интернет.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  if (!editing) {
-    return (
-      <div className="account-card social-username">
-        <div className="account-label">Юзернейм — по нему вас найдут друзья</div>
-        <div className="row-between">
-          <div className="account-email">{props.username ? `@${props.username}` : 'не задан'}</div>
-          <button className="btn-text" onClick={startEdit}>
-            {props.username ? 'Изменить' : 'Придумать'}
-          </button>
-        </div>
-      </div>
-    )
-  }
+export function RecommendationsSection({ social }: { social: SocialState }) {
   return (
-    <div className="account-card social-username">
-      <div className="account-label">Латинские буквы, цифры и «_», от 3 до 20 символов</div>
-      <div className="social-at-input">
-        <span>@</span>
-        <input
-          className="input"
-          autoFocus
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          maxLength={21}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value.replace(/^@/, '').toLowerCase())}
-          onKeyDown={(e) => e.key === 'Enter' && void save()}
-          placeholder="username"
-        />
-      </div>
-      {error && <div className="account-error">{error}</div>}
-      <div className="social-actions">
-        <button className="btn-outline account-btn" disabled={busy} onClick={() => setEditing(false)}>
-          Отмена
-        </button>
-        <button className="btn-accent account-btn" disabled={busy || !draft.trim()} onClick={() => void save()}>
-          {busy ? 'Сохраняем…' : 'Сохранить'}
-        </button>
-      </div>
-    </div>
+    <>
+      <div className="profile-section-title">Рекомендации от друзей</div>
+      <RecommendationsList items={social.recommendations} loading={social.loading} reload={social.reload} />
+    </>
   )
 }
 
@@ -189,7 +148,7 @@ function FriendsCard(props: { hasUsername: boolean; friends: Friend[]; loading: 
   return (
     <div className="account-card social-friends">
       {!props.hasUsername && !props.loading && (
-        <div className="account-hint">Чтобы добавлять друзей, придумайте себе юзернейм выше.</div>
+        <div className="account-hint">Чтобы добавлять друзей, придумайте себе юзернейм в настройках.</div>
       )}
       <div className="social-search">
         <div className="social-at-input">
@@ -301,7 +260,7 @@ function RecommendationsList(props: { items: Recommendation[]; loading: boolean;
     }
   }
   return (
-    <div className="social-recs">
+    <div className={`social-recs${props.items.length > 1 ? ' social-recs-stack' : ''}`}>
       {props.items.map((r) => {
         const w = r.wine
         const color = WINE_COLORS.find((c) => c.value === w.color)?.label

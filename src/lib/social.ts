@@ -154,6 +154,8 @@ export async function listRecommendations(): Promise<Recommendation[]> {
     senderUsername: (r.sender_username as string | null) ?? null,
     senderName: (r.sender_name as string | null) ?? null,
   }))
+    // от самой новой к самой старой
+    .sort((a: Recommendation, b: Recommendation) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
 }
 
 export async function deleteRecommendation(id: string) {

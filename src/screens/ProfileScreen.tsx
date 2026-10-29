@@ -8,11 +8,12 @@ import type { FeedView } from '../types'
 import { BottomNav } from '../components/BottomNav'
 import { PhotoImg } from '../components/PhotoImg'
 import { AccountCard } from '../components/AccountCard'
-import { SocialPanel } from '../components/SocialPanel'
+import { FriendsSection, RecommendationsSection, UsernameRow, useProfileSocial } from '../components/ProfileSocial'
+import { EditableRow } from '../components/EditableRow'
+import { AvatarCropper } from '../components/AvatarCropper'
 import {
   CameraIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
   CloudIcon,
   GridViewIcon,
   ListViewIcon,
@@ -22,8 +23,8 @@ import {
 
 export default function ProfileScreen() {
   const profile = useLiveQuery(() => db.profile.toCollection().first(), [])
-  const [editingName, setEditingName] = useState(false)
-  const [nameDraft, setNameDraft] = useState('')
+  const social = useProfileSocial()
+  const [cropFile, setCropFile] = useState<File | null>(null)
   const [backupOpen, setBackupOpen] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
   const avatarRef = useRef<HTMLInputElement>(null)
@@ -40,20 +41,19 @@ export default function ProfileScreen() {
   }
   const feedView = profile.feedView ?? 'full'
 
-  const onAvatarChosen = async (file: File | undefined) => {
-    if (!file) return
-    const photoId = (await db.photos.add({ blob: file, createdAt: new Date().toISOString() })) as number
+  const saveAvatar = async (blob: Blob) => {
+    setCropFile(null)
+    const photoId = (await db.photos.add({ blob, createdAt: new Date().toISOString() })) as number
     await db.profile.update(profile.id!, { avatarPhotoId: photoId, updatedAt: new Date().toISOString() })
     void syncProfile()
   }
 
-  const saveName = async () => {
-    const name = nameDraft.trim()
-    if (name && name !== profile.name) {
-      await db.profile.update(profile.id!, { name, updatedAt: new Date().toISOString() })
-      void syncProfile()
-    }
-    setEditingName(false)
+  const saveName = async (draft: string) => {
+    const name = draft.trim()
+    if (!name) return 'Имя не может быть пустым'
+    await db.profile.update(profile.id!, { name, updatedAt: new Date().toISOString() })
+    void syncProfile()
+    return null
   }
 
   const onExport = async () => {
@@ -110,16 +110,14 @@ export default function ProfileScreen() {
           accept="image/*"
           hidden
           onChange={(e) => {
-            void onAvatarChosen(e.target.files?.[0])
+            const file = e.target.files?.[0]
+            if (file) setCropFile(file)
             e.target.value = ''
           }}
         />
         <div className="profile-name">{profile.name || 'Без имени'}</div>
       </div>
-
-      <div className="profile-section-title">Аккаунт</div>
-      <AccountCard />
-      <SocialPanel />
+      {cropFile && <AvatarCropper file={cropFile} onCancel={() => setCropFile(null)} onDone={(b) => void saveAvatar(b)} />}
 
       <div className="profile-section-title">Настройки</div>
       <div className="card-list">
@@ -158,36 +156,15 @@ export default function ProfileScreen() {
             </button>
           </div>
         </div>
-        <button
-          className="card-row"
-          onClick={() => {
-            if (!editingName) {
-              setNameDraft(profile.name)
-              setEditingName(true)
-            }
-          }}
-        >
-          Имя
-          {editingName ? (
-            <input
-              className="name-edit-input"
-              autoFocus
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-              onBlur={() => void saveName()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') void saveName()
-              }}
-            />
-          ) : (
-            <span className="row-value">
-              {profile.name || '—'}
-              <ChevronRightIcon size={18} />
-            </span>
-          )}
-        </button>
+        <EditableRow label="Имя" value={profile.name} onSave={saveName} />
+        {social && <UsernameRow social={social} />}
       </div>
+
+      {social && <FriendsSection social={social} />}
+      {social && <RecommendationsSection social={social} />}
+
+      <div className="profile-section-title">Аккаунт</div>
+      <AccountCard />
 
       <div className="profile-section-title">Данные</div>
       <div className="card-list">
