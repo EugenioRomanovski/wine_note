@@ -535,6 +535,89 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Вино в кнопке «+»: бокал — светлый оттенок акцента, вино — сам акцент */
+.nav-add:has(.wine-slosh) {
+  background: color-mix(in srgb, var(--accent) 38%, var(--card));
+}
+
+.nav-add-icon {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.25));
+}
+
+.wine-slosh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Поверхность наклоняется туда-сюда и чуть поднимается — как при покачивании бокала */
+.wine-slosh-tilt {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  top: 26%;
+  bottom: -40%;
+  transform-origin: 50% 20%;
+  animation: wine-tilt 4.2s ease-in-out infinite;
+}
+
+.wine-slosh-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+}
+
+.wine-slosh-front {
+  fill: var(--accent);
+  animation: wine-wave 2.6s linear infinite;
+}
+
+.wine-slosh-back {
+  fill: var(--accent-deep);
+  opacity: 0.6;
+  top: -4px;
+  animation: wine-wave 3.8s linear infinite reverse;
+}
+
+@keyframes wine-wave {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes wine-tilt {
+  0%,
+  100% {
+    transform: rotate(-10deg) translateY(1px);
+  }
+  25% {
+    transform: rotate(3deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(11deg) translateY(1px);
+  }
+  75% {
+    transform: rotate(-2deg) translateY(-1.5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wine-slosh-tilt,
+  .wine-slosh-wave {
+    animation: none;
+  }
 }
 
 /* ===== Entry form ===== */
