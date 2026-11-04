@@ -687,6 +687,23 @@
   outline: none;
 }
 
+/* Дата в Safari на iOS: системное поле со своей минимальной шириной вылезает за экран */
+.input[type='datetime-local'],
+.input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 54px;
+  text-align: left;
+}
+
+.input[type='datetime-local']::-webkit-date-and-time-value,
+.input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 .input:focus {
   border-color: var(--accent);
 }
