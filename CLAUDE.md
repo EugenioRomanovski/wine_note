@@ -34,6 +34,8 @@ Local-first приложение для заметок о вине: React 19 + T
   профиль и друзья. Общее — схема `public`, своё — схема `winenote` (`client().schema('winenote')`).
   Архитектура, правила и миграции — в репозитории encore (`docs/BACKEND.md`, `supabase/migrations/`);
   здесь — `supabase/README.md`. Таблицы других приложений не трогать.
+- Адрес API — `https://api.brainsome.app` (прокси на VPS к `uvuifuyozscfcowuxdtr.supabase.co`: без VPN
+  `*.supabase.co` открывается не везде). Напрямую `supabase.co` в коде и данных не использовать.
 - Клиент — `src/lib/supabase.ts` (null, если нет `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`;
   приложение тогда работает без аккаунта). Значения публичные: `.env.example`, на Vercel — env vars.
 - Вход — email + одноразовый код (`signInWithOtp` с `emailRedirectTo` = адрес Wine Note / `verifyOtp`).
