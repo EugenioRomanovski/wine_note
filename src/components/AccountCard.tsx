@@ -64,7 +64,11 @@ export function AccountCard() {
     setBusy(true)
     setError(null)
     // если аккаунта ещё нет, Supabase создаст его — вход и регистрация одним шагом
-    const { error } = await auth.signInWithOtp({ email: email.trim() })
+    // проект Supabase общий с другими приложениями: ссылка в письме ведёт обратно в Wine Note
+    const { error } = await auth.signInWithOtp({
+      email: email.trim(),
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    })
     setBusy(false)
     if (error) return setError(authErrorMessage(error))
     setStep('code')

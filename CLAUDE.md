@@ -1,7 +1,7 @@
 # Wine Note — заметки для Claude
 
 Local-first приложение для заметок о вине: React 19 + TS + Vite, Dexie (IndexedDB), HashRouter.
-Свой бэкенд — только Supabase (проект `winenote`): аккаунт, профиль, друзья и рекомендации; записи о винах хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
+Свой бэкенд — только Supabase (общий проект приложений автора): аккаунт, профиль, друзья и рекомендации; записи о винах хранятся локально. Интерфейс на русском. Позже будет упаковано в iOS/Android (план — Capacitor),
 поэтому избегай веб-only API без фолбэка и не переходи на BrowserRouter.
 
 ## Команды
@@ -30,28 +30,30 @@ Local-first приложение для заметок о вине: React 19 + T
   поле — `src/components/WineNameInput.tsx`: сначала свои заметки, выбор заполняет пустые поля.
 
 ## Supabase
+- Проект **общий** для приложений автора (Wine Note, Encore, …; `uvuifuyozscfcowuxdtr`): один аккаунт,
+  профиль и друзья. Общее — схема `public`, своё — схема `winenote` (`client().schema('winenote')`).
+  Архитектура, правила и миграции — в репозитории encore (`docs/BACKEND.md`, `supabase/migrations/`);
+  здесь — `supabase/README.md`. Таблицы других приложений не трогать.
 - Клиент — `src/lib/supabase.ts` (null, если нет `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`;
   приложение тогда работает без аккаунта). Значения публичные: `.env.example`, на Vercel — env vars.
-- Вход — email + одноразовый код (`signInWithOtp` / `verifyOtp`). В письме также ссылка
-  `https://wine-note-one.vercel.app/?token_hash={{ .TokenHash }}&type=email` — параметры до `#`,
-  чтобы не конфликтовать с HashRouter; её обрабатывает `src/components/AuthLinkHandler.tsx`.
-  Стандартный `{{ .ConfirmationURL }}` не использовать (токены в `#` ломают маршруты).
-  Шаблоны писем (Magic Link и Confirm signup) должны содержать `{{ .Token }}` и эту ссылку.
-- Профиль (имя, аватар) синхронизируется: таблица `profiles` + приватный бакет `avatars`
-  (`<user id>/avatar.jpg`), RLS — только свои данные. Логика — `src/lib/profileSync.ts`
-  (побеждает последнее изменение, `Profile.updatedAt`).
-- Друзья и рекомендации — `src/lib/social.ts`: `profiles.username` (уникальный, `^[a-z0-9_]{3,20}$`),
-  таблицы `friendships` (pending/accepted, одна запись на пару) и `recommendations` (копия вина
-  в jsonb, отправить можно только другу — RLS). Чужие профили напрямую не читаются: только через
-  функции `find_user` (точный юзернейм), `send_friend_request`, `respond_friend_request`,
-  `my_friends`, `my_recommendations_v2` (security definer, фильтруют по `auth.uid()`).
-- Фото рекомендаций — приватный бакет `rec-photos` (`<sender id>/<recommendation id>.jpg`,
+- Вход — email + одноразовый код (`signInWithOtp` с `emailRedirectTo` = адрес Wine Note / `verifyOtp`).
+  Шаблон письма общий для всех приложений: код `{{ .Token }}` и ссылка
+  `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email` — параметры до `#`, чтобы не конфликтовать
+  с HashRouter; её обрабатывает `src/components/AuthLinkHandler.tsx`. Стандартный `{{ .ConfirmationURL }}`
+  не использовать (токены в `#` ломают маршруты). Адрес Wine Note должен быть в Redirect URLs.
+- Профиль (имя, аватар) — общая таблица `public.profiles` (`user_id`, `username` может быть пустым,
+  `display_name`, `avatar_url`) + публичный бакет `avatars` (`<user id>/avatar-<время>.jpg`).
+  Логика — `src/lib/profileSync.ts` (побеждает последнее изменение, `Profile.updatedAt`).
+- Друзья — общие для всех приложений (`public.friendships`, функции `find_user`, `my_friends`,
+  `send_friend_request(p_username)` — ответ переводится `mapFriendRequestResult`, `respond_friend_request`).
+  Юзернейм уникален на все приложения; Wine Note разрешает задать только `^[a-z0-9_]{3,20}$`.
+  Рекомендации — `winenote.recommendations` (копия вина в jsonb, отправить можно только другу — RLS
+  через `private.are_friends`), список полученных — `winenote.my_recommendations()`. Логика — `src/lib/social.ts`.
+- Фото рекомендаций — приватный бакет `winenote-rec-photos` (`<sender id>/<recommendation id>.jpg`,
   уменьшается до 1280 px); видят отправитель и получатель; `photo_path` обязан лежать в папке
   отправителя (check-constraint). Показ — через `createSignedUrl` (`recPhotoUrl`).
 - Коннектор Supabase не выполняет `drop`/`alter policy` без подтверждения пользователя (таймаут):
   такие изменения — только по согласованию.
-- Схема базы: миграции в `supabase/migrations/` (имя файла = версия из `list_migrations`).
-  Применяются через коннектор Supabase, файл в репозитории — копия для истории.
 - Секретный ключ (service_role) в клиентский код не попадает никогда.
 
 ## Git

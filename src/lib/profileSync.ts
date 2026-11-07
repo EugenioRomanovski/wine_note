@@ -3,10 +3,22 @@ import type { Profile } from '../types'
 import { supabase } from './supabase'
 import { resizeImage } from './image'
 
+/** Строка общей таблицы profiles (один профиль на аккаунт во всех приложениях автора). */
 export interface RemoteProfile {
   display_name: string
-  avatar_path: string | null
+  /** публичная ссылка на файл в бакете avatars: '…/object/public/avatars/<user id>/avatar-<время>.jpg' */
+  avatar_url: string | null
   updated_at: string
+}
+
+const AVATARS_PREFIX = '/object/public/avatars/'
+
+/** Путь файла в бакете avatars по публичной ссылке (или null, если ссылка не из этого бакета). */
+export function avatarPathFromUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  const i = url.indexOf(AVATARS_PREFIX)
+  if (i < 0) return null
+  return decodeURIComponent(url.slice(i + AVATARS_PREFIX.length).split('?')[0]) || null
 }
 
 export type SyncAction = 'push' | 'pull' | 'none'
@@ -21,7 +33,7 @@ const hasData = (name: string | undefined, avatar: unknown) => Boolean(name?.tri
 export function decideSync(local: Profile, remote: RemoteProfile | null, userId: string): SyncAction {
   const localHas = hasData(local.name, local.avatarPhotoId)
   if (!remote) return localHas ? 'push' : 'none'
-  const remoteHas = hasData(remote.display_name, remote.avatar_path)
+  const remoteHas = hasData(remote.display_name, remote.avatar_url)
   const localTimeKnown = local.updatedAt && (!local.syncedUserId || local.syncedUserId === userId)
   if (!localTimeKnown) {
     if (remoteHas) return 'pull'
@@ -71,8 +83,8 @@ async function syncOnce() {
 
   const { data: remote, error } = await supabase
     .from('profiles')
-    .select('display_name, avatar_path, updated_at')
-    .eq('id', userId)
+    .select('display_name, avatar_url, updated_at')
+    .eq('user_id', userId)
     .maybeSingle()
   if (error) throw error
 
@@ -83,23 +95,30 @@ async function syncOnce() {
 }
 
 async function push(userId: string, local: Profile, remote: RemoteProfile | null) {
-  let avatarPath = remote?.avatar_path ?? null
-  if (local.avatarPhotoId != null && (local.avatarPhotoId !== local.syncedAvatarPhotoId || !avatarPath)) {
+  let avatarUrl = remote?.avatar_url ?? null
+  let oldPath: string | null = null
+  if (local.avatarPhotoId != null && (local.avatarPhotoId !== local.syncedAvatarPhotoId || !avatarUrl)) {
     const photo = await db.photos.get(local.avatarPhotoId)
     if (photo) {
-      const path = `${userId}/avatar.jpg`
+      // бакет публичный (аватары видят друзья во всех приложениях); новое имя файла — чтобы не мешал кэш
+      const path = `${userId}/avatar-${Date.now()}.jpg`
       const { error } = await supabase!.storage
         .from('avatars')
         .upload(path, await resizeImage(photo.blob, 512), { upsert: true, contentType: 'image/jpeg' })
       if (error) throw error
-      avatarPath = path
+      oldPath = avatarPathFromUrl(avatarUrl)
+      avatarUrl = supabase!.storage.from('avatars').getPublicUrl(path).data.publicUrl
     }
   }
   const updatedAt = local.updatedAt ?? new Date().toISOString()
   const { error } = await supabase!
     .from('profiles')
-    .upsert({ id: userId, display_name: local.name.trim(), avatar_path: avatarPath, updated_at: updatedAt })
+    .upsert(
+      { user_id: userId, display_name: local.name.trim().slice(0, 100), avatar_url: avatarUrl, updated_at: updatedAt },
+      { onConflict: 'user_id' },
+    )
   if (error) throw error
+  if (oldPath) await supabase!.storage.from('avatars').remove([oldPath]).catch(() => {})
   await db.profile.update(local.id!, {
     updatedAt,
     syncedUserId: userId,
@@ -113,9 +132,8 @@ async function pull(userId: string, local: Profile, remote: RemoteProfile) {
     updatedAt: remote.updated_at,
     syncedUserId: userId,
   }
-  if (remote.avatar_path) {
-    const { data: blob, error } = await supabase!.storage.from('avatars').download(remote.avatar_path)
-    if (error) throw error
+  if (remote.avatar_url) {
+    const blob = await downloadAvatar(remote.avatar_url)
     const photoId = (await db.photos.add({ blob, createdAt: new Date().toISOString() })) as number
     changes.avatarPhotoId = photoId
     changes.syncedAvatarPhotoId = photoId
@@ -123,4 +141,16 @@ async function pull(userId: string, local: Profile, remote: RemoteProfile) {
     if (local.avatarPhotoId != null) await db.photos.delete(local.avatarPhotoId)
   }
   await db.profile.update(local.id!, changes)
+}
+
+async function downloadAvatar(url: string): Promise<Blob> {
+  const path = avatarPathFromUrl(url)
+  if (path) {
+    const { data, error } = await supabase!.storage.from('avatars').download(path)
+    if (error) throw error
+    return data
+  }
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Аватар не загрузился: ${res.status}`)
+  return res.blob()
 }

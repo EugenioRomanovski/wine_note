@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { WineNote } from '../types'
-import { latestDate, normalizeUsername, usernameError, wineFromNote } from './social'
+import { latestDate, mapFriendRequestResult, normalizeUsername, usernameError, wineFromNote } from './social'
 
 describe('username', () => {
   it('normalizes input', () => {
@@ -53,5 +53,16 @@ describe('latestDate', () => {
   it('picks the newest ISO date', () => {
     expect(latestDate(['2026-10-20T10:00:00Z', '2026-10-21T09:00:00Z', '2026-10-19T23:00:00Z'])).toBe('2026-10-21T09:00:00Z')
     expect(latestDate([])).toBeUndefined()
+  })
+})
+
+describe('mapFriendRequestResult', () => {
+  it('maps answers of the shared send_friend_request function', () => {
+    expect(mapFriendRequestResult('requested')).toBe('sent')
+    expect(mapFriendRequestResult('accepted')).toBe('accepted')
+    expect(mapFriendRequestResult('pending')).toBe('already')
+    expect(mapFriendRequestResult('friends')).toBe('already')
+    expect(mapFriendRequestResult('self')).toBe('not_found')
+    expect(mapFriendRequestResult('not_found')).toBe('not_found')
   })
 })

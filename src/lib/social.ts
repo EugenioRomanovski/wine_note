@@ -68,7 +68,7 @@ export interface Recommendation {
   id: string
   wine: SharedWine
   message: string | null
-  /** Путь к фото в бакете rec-photos или null */
+  /** Путь к фото в бакете winenote-rec-photos или null */
   photoPath: string | null
   createdAt: string
   senderUsername: string | null
@@ -77,9 +77,29 @@ export interface Recommendation {
 
 export type FriendRequestResult = 'sent' | 'accepted' | 'already' | 'not_found' | 'no_username'
 
+/** Ответ общей функции send_friend_request → результат для интерфейса Wine Note. */
+export function mapFriendRequestResult(r: string): FriendRequestResult {
+  if (r === 'requested') return 'sent'
+  if (r === 'accepted') return 'accepted'
+  if (r === 'pending' || r === 'friends') return 'already'
+  return 'not_found' // 'not_found' или 'self'
+}
+
+/** Фото рекомендаций (приватный бакет Wine Note в общем проекте). */
+export const REC_PHOTOS_BUCKET = 'winenote-rec-photos'
+
+/*
+ * Проект Supabase общий для приложений автора (один аккаунт): профили, дружба и функции
+ * find_user / my_friends / send_friend_request / respond_friend_request — в схеме public,
+ * таблицы Wine Note (рекомендации) — в схеме winenote.
+ */
 function client() {
   if (!supabase) throw new Error('Supabase не настроен')
   return supabase
+}
+
+function winenote() {
+  return client().schema('winenote')
 }
 
 async function currentUserId(): Promise<string> {
@@ -91,7 +111,7 @@ async function currentUserId(): Promise<string> {
 
 export async function getMyUsername(): Promise<string | null> {
   const id = await currentUserId()
-  const { data, error } = await client().from('profiles').select('username').eq('id', id).maybeSingle()
+  const { data, error } = await client().from('profiles').select('username').eq('user_id', id).maybeSingle()
   if (error) throw error
   return data?.username ?? null
 }
@@ -99,7 +119,9 @@ export async function getMyUsername(): Promise<string | null> {
 /** Сохраняет юзернейм. Возвращает 'taken', если он уже занят. */
 export async function setMyUsername(raw: string): Promise<'ok' | 'taken'> {
   const id = await currentUserId()
-  const { error } = await client().from('profiles').upsert({ id, username: normalizeUsername(raw) })
+  const { error } = await client()
+    .from('profiles')
+    .upsert({ user_id: id, username: normalizeUsername(raw) }, { onConflict: 'user_id' })
   if (error?.code === '23505') return 'taken'
   if (error) throw error
   return 'ok'
@@ -126,9 +148,10 @@ export async function findUser(raw: string): Promise<FoundUser | null> {
 }
 
 export async function sendFriendRequest(username: string): Promise<FriendRequestResult> {
-  const { data, error } = await client().rpc('send_friend_request', { target_username: normalizeUsername(username) })
+  if (!(await getMyUsername())) return 'no_username'
+  const { data, error } = await client().rpc('send_friend_request', { p_username: normalizeUsername(username) })
   if (error) throw error
-  return data as FriendRequestResult
+  return mapFriendRequestResult(data as string)
 }
 
 export async function respondFriendRequest(friendshipId: string, accept: boolean) {
@@ -143,7 +166,7 @@ export async function removeFriendship(friendshipId: string) {
 }
 
 export async function listRecommendations(): Promise<Recommendation[]> {
-  const { data, error } = await client().rpc('my_recommendations_v2')
+  const { data, error } = await winenote().rpc('my_recommendations')
   if (error) throw error
   return (data ?? []).map((r: Record<string, unknown>) => ({
     id: r.id as string,
@@ -159,7 +182,7 @@ export async function listRecommendations(): Promise<Recommendation[]> {
 }
 
 export async function deleteRecommendation(id: string) {
-  const { error } = await client().from('recommendations').delete().eq('id', id)
+  const { error } = await winenote().from('recommendations').delete().eq('id', id)
   if (error) throw error
 }
 
@@ -171,16 +194,16 @@ export async function sendRecommendation(recipientId: string, wine: SharedWine, 
     // фото — в папку отправителя; видят его только отправитель и получатель (RLS)
     photoPath = `${sender}/${id}.jpg`
     const { error } = await client()
-      .storage.from('rec-photos')
+      .storage.from(REC_PHOTOS_BUCKET)
       .upload(photoPath, await resizeImage(photo, 1280), { contentType: 'image/jpeg' })
     if (error) throw error
   }
   const text = message.trim()
-  const { error } = await client()
+  const { error } = await winenote()
     .from('recommendations')
     .insert({ id, sender, recipient: recipientId, wine, message: text || null, photo_path: photoPath })
   if (error) {
-    if (photoPath) await client().storage.from('rec-photos').remove([photoPath])
+    if (photoPath) await client().storage.from(REC_PHOTOS_BUCKET).remove([photoPath])
     throw error
   }
 }
@@ -192,7 +215,7 @@ export function recPhotoUrl(path: string): Promise<string | null> {
   let url = photoUrls.get(path)
   if (!url) {
     url = client()
-      .storage.from('rec-photos')
+      .storage.from(REC_PHOTOS_BUCKET)
       .createSignedUrl(path, 60 * 60 * 6)
       .then(({ data }) => data?.signedUrl ?? null)
       .catch(() => null)
@@ -205,7 +228,7 @@ export function recPhotoUrl(path: string): Promise<string | null> {
 export async function countNewRecommendations(seenAt: string | undefined): Promise<number> {
   const me = await currentUserId()
   // фильтр по получателю обязателен: правила доступа показывают и отправленные мной
-  let query = client().from('recommendations').select('id', { count: 'exact', head: true }).eq('recipient', me)
+  let query = winenote().from('recommendations').select('id', { count: 'exact', head: true }).eq('recipient', me)
   if (seenAt) query = query.gt('created_at', seenAt)
   const { count, error } = await query
   if (error) throw error
